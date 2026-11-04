@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{--pink:#FFDFF3;--ink:#161515;--lav:#D8D0E8;--sand:#F2EAD9;--white:#fff;--pulse:#D9F56A;--muted:rgba(22,21,21,.62);--rule:rgba(22,21,21,.18);--r:4px}
+  :root{--pink:#FFDFF3;--ink:#161515;--lav:#D8D0E8;--sand:#F2EAD9;--white:#fff;--muted:rgba(22,21,21,.62);--rule:rgba(22,21,21,.18);--r:4px}
   *{box-sizing:border-box}
   body{margin:0;font-family:"Schibsted Grotesk",system-ui,sans-serif;color:var(--ink);background:var(--white);font-size:16px;line-height:1.45}
   a{color:inherit}
@@ -34,7 +34,7 @@
   .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
   .chip{font-size:12px;border:1px solid var(--rule);border-radius:var(--r);padding:3px 8px;background:#fff}
   .chip.k{background:var(--lav);border-color:transparent}
-  .chip.w{background:var(--pulse);border-color:transparent}
+  .chip.w{background:var(--sand);border-color:transparent}
   h2{font-size:28px;letter-spacing:-.02em;margin:0 0 14px}
   h3{font-size:15px;margin:22px 0 10px;text-transform:uppercase;letter-spacing:.06em}
   .people{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -50,7 +50,7 @@
   .bar{display:flex;height:34px;border:1px solid var(--ink);border-radius:var(--r);overflow:hidden;margin-bottom:6px}
   .bar div{border-right:1px solid var(--ink);font-size:11.5px;font-weight:700;padding:0 6px;display:flex;align-items:center;overflow:hidden;white-space:nowrap}
   .bar div:last-child{border-right:0}
-  .bar .hook{background:var(--pulse)} .bar .core{background:var(--pink)} .bar .close{background:var(--lav)} .bar .edge{background:var(--sand)}
+  .bar .hook{background:var(--ink);color:#fff} .bar .core{background:var(--pink)} .bar .close{background:var(--lav)} .bar .edge{background:var(--sand)}
   .barnote{font-size:12.5px;color:var(--muted);margin-bottom:20px}
   .step{display:grid;grid-template-columns:54px 1fr auto;gap:14px;border-top:1px solid var(--rule);padding:14px 0}
   .step .n{font-size:28px;font-weight:800;letter-spacing:-.03em}
@@ -71,7 +71,7 @@
   table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--r);overflow:hidden}
   th,td{border:1px solid var(--rule);padding:10px;vertical-align:top;font-size:13.5px;text-align:left}
   th{background:var(--ink);color:var(--lav);font-weight:700}
-  td.hookc{background:var(--pulse);font-weight:700}
+  td.hookc{background:var(--sand);font-weight:700}
   td small{color:var(--muted);display:block}
   .seg{display:flex;border:1px solid var(--ink);border-radius:var(--r);overflow:hidden;margin:8px 0 10px}
   .seg button{flex:1;font:inherit;font-size:13px;font-weight:700;padding:7px;border:0;background:#fff;cursor:pointer}
@@ -82,7 +82,7 @@
   .know div span:first-child{color:var(--muted)}
   .src{font-size:11px;border-radius:var(--r);padding:1px 6px;background:var(--lav);margin-left:6px}
   .schema{background:var(--sand);padding:40px 0}
-  pre{background:var(--ink);color:var(--pulse);border-radius:var(--r);padding:14px;overflow:auto;max-height:420px;font-size:12px}
+  pre{background:var(--ink);color:#fff;border-radius:var(--r);padding:14px;overflow:auto;max-height:420px;font-size:12px}
   footer{padding:28px 0;color:var(--muted);font-size:13px}
   @media (max-width:1000px){.grid{grid-template-columns:1fr}.hero h1{font-size:44px}.cols{grid-template-columns:1fr}}
 </style>
@@ -246,7 +246,7 @@ async function render(p){
     <div class="eyebrow">Demo plan for ${p.name} · ${p.title}, ${p.company}</div>
     <p class="opening">“${plan.opening}”</p>
     <div class="bar">${seg("edge","Hello",15)}${plan.steps.map(s => seg(s.role, s.name, s.seconds)).join("")}${seg("edge","Next step",15)}</div>
-    <div class="barnote">${fmt(plan.totalSeconds)} planned out of ${fmt(total)} · green is the hook, lavender the close</div>
+    <div class="barnote">${fmt(plan.totalSeconds)} planned out of ${fmt(total)} · black is the hook, lavender the close</div>
     ${plan.steps.map(s => `
       <div class="step">
         <div class="n">${s.n}</div>

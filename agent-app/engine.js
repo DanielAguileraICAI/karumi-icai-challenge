@@ -79,10 +79,9 @@ export function matchDemand(features, demand) {
   const rows = (demand.demand || []).filter(r => r && r.topic);
   return rows.map(r => {
     const words = String(r.topic).toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2).map(stem).flatMap(w => ALIAS[w] ? [w, ALIAS[w]] : [w]);
-    const hit = features.filter(f => {
-      const hay = [f.id, f.name, f.module, ...(f.themes || [])].join(" ").toLowerCase();
-      return words.some(w => hay.includes(w));
-    });
+    const has = hay => words.some(w => hay.toLowerCase().includes(w));
+    let hit = features.filter(f => has([f.id, f.name, f.module].join(" ")));
+    if (!hit.length) hit = features.filter(f => has((f.themes || []).join(" ")));
     return { topic: r.topic, sessions: Number(r.sessions) || 0, mentions: Number(r.mentions) || 0, promoted: promoted.has(r.topic), features: hit.map(f => f.id) };
   });
 }

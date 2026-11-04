@@ -1,5 +1,6 @@
 /* Demo guide widget: in-page voice demo agent. Plain browser JS, no deps. */
 (function () {
+  try { if (window.top !== window && window.top.__nsWidget) return; } catch (e) {}
   if (window.__nsWidget) return; window.__nsWidget = true;
   var KEY = 'nextstep.live';
   var SYN = [
@@ -79,67 +80,100 @@
     s.textContent = [
       '.ns-root{position:fixed;right:20px;bottom:20px;z-index:2147483000;font-family:"Schibsted Grotesk",system-ui,sans-serif;color:#161515;font-size:14px;line-height:1.4}',
       '.ns-root *{box-sizing:border-box;font-family:inherit}',
-      '.ns-pill{display:flex;align-items:center;gap:10px;background:#161515;color:#FFDFF3;border:0;border-radius:4px;padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600}',
-      '.ns-dots{display:inline-flex;align-items:center;gap:3px;height:16px}',
-      '.ns-dots i{display:block;width:4px;height:4px;border-radius:2px;background:currentColor;transition:height .12s}',
-      '.ns-live .ns-dots i{animation:ns-lvl .9s ease-in-out infinite}',
-      '.ns-dots i:nth-child(2){animation-delay:.1s}.ns-dots i:nth-child(3){animation-delay:.25s}.ns-dots i:nth-child(4){animation-delay:.05s}.ns-dots i:nth-child(5){animation-delay:.3s}.ns-dots i:nth-child(6){animation-delay:.15s}',
-      '@keyframes ns-lvl{0%,100%{height:4px}50%{height:14px}}',
-      '.ns-panel{width:360px;max-height:80vh;overflow:auto;background:#FFDFF3;border:1px solid #161515;border-radius:4px}',
-      '.ns-head{display:flex;align-items:center;gap:10px;background:#161515;color:#FFDFF3;padding:10px 12px}',
-      '.ns-head b{flex:1;font-weight:600}.ns-head small{opacity:.85}',
-      '.ns-x{background:none;border:0;color:#FFDFF3;cursor:pointer;font-size:16px;padding:0 4px}',
+      '.ns-pill{display:flex;align-items:center;gap:10px;background:#FFFFFF;color:#161515;border:1px solid #161515;border-radius:999px;padding:7px 14px 7px 8px;cursor:pointer;font-size:14px;font-weight:600}',
+      '.ns-dot{position:relative;display:inline-block;flex:none;border-radius:50%;background:#161515}',
+      '.ns-eyes{position:absolute;left:0;right:0;top:22%;height:34%;display:flex;justify-content:center;gap:18%;transition:transform .3s ease;animation:ns-glance 7s ease-in-out infinite}',
+      '.ns-eyes i{display:block;width:14%;height:100%;border-radius:999px;background:#FFFFFF;transform-origin:50% 50%;transition:transform .2s;animation:ns-blink 5s infinite}',
+      '.ns-eyes i:nth-child(2){animation-delay:.02s}',
+      '@keyframes ns-blink{0%,96%,100%{transform:scaleY(1)}97.2%{transform:scaleY(.1)}}',
+      '@keyframes ns-glance{0%,40%,100%{transform:translateX(0)}45%,55%{transform:translateX(-2px)}85%,92%{transform:translateX(2px)}}',
+      '@keyframes ns-bob{0%{transform:translateY(-1px)}100%{transform:translateY(1.5px)}}',
+      '.ns-speaking .ns-eyes{animation:ns-bob .4s ease-in-out infinite alternate}',
+      '.ns-listening .ns-eyes{animation:none;transform:translate(-6%,4%)}.ns-listening .ns-eyes i{animation:none;transform:scaleY(1.15)}',
+      '.ns-thinking .ns-eyes{animation:none;transform:translate(7%,-10%)}',
+      '.ns-vmode .ns-eyes{animation:none;transform:translateX(-12%)}.ns-vmode.ns-speaking .ns-eyes{animation:ns-bobl .4s ease-in-out infinite alternate}',
+      '@keyframes ns-bobl{0%{transform:translate(-12%,-1px)}100%{transform:translate(-12%,1.5px)}}',
+      '.ns-vmode.ns-listening .ns-eyes{transform:translate(-16%,4%)}.ns-vmode.ns-thinking .ns-eyes{transform:translate(4%,-10%)}',
+      '@media (prefers-reduced-motion:reduce){.ns-eyes,.ns-eyes i,.ns-big{animation:none !important}}',
+      '.ns-panel{width:360px;max-height:80vh;overflow:auto;background:#FFFFFF;border:1px solid #161515;border-radius:4px}',
+      '.ns-head{display:flex;align-items:center;gap:8px;background:#FFFFFF;color:#161515;padding:10px 12px;border-bottom:1px solid rgba(22,21,21,.14)}',
+      '.ns-head b{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ns-head small{color:rgba(22,21,21,.6);white-space:nowrap}',
+      '.ns-seg{display:inline-flex;border:1px solid #161515;border-radius:4px;overflow:hidden;flex:none}',
+      '.ns-seg button{background:#FFFFFF;color:#161515;border:0;padding:3px 7px;font-size:12px;font-weight:600;cursor:pointer}.ns-seg button.ns-on{background:#161515;color:#FFFFFF}',
+      '.ns-x{background:none;border:0;color:#161515;cursor:pointer;font-size:16px;padding:0 4px}',
       '.ns-body{padding:12px}',
-      '.ns-mod{font-size:12px;text-transform:uppercase;letter-spacing:.04em;opacity:.7}',
+      '.ns-mod{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:rgba(22,21,21,.6)}',
       '.ns-name{font-size:18px;font-weight:700;margin:2px 0 6px}',
       '.ns-say{margin:0 0 8px}',
       '.ns-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}',
-      '.ns-chip{background:#D8D0E8;color:#161515;border-radius:4px;padding:2px 8px;font-size:12px}',
-      '.ns-change{background:#D9F56A;color:#161515;border-radius:4px;padding:8px;margin-bottom:10px;font-size:13px}',
+      '.ns-chip{background:#F2EAD9;color:#161515;border-radius:4px;padding:2px 8px;font-size:12px}',
+      '.ns-change{background:#FFFFFF;color:#161515;border:1px solid rgba(22,21,21,.14);border-radius:4px;padding:8px;margin-bottom:10px;font-size:13px}',
+      '.ns-change:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#161515;margin-right:6px;vertical-align:1px}',
       '.ns-reply{background:#F2EAD9;color:#161515;border-radius:4px;padding:8px;margin-bottom:10px;font-size:13px}',
       '.ns-btns{display:flex;gap:8px;margin-bottom:8px}',
-      '.ns-btn{flex:1;background:#161515;color:#FFDFF3;border:1px solid #161515;border-radius:4px;padding:8px;cursor:pointer;font-weight:600;font-size:14px}',
-      '.ns-btn.ns-alt{background:#FFDFF3;color:#161515}.ns-btn.ns-on{background:#D9F56A;color:#161515}',
+      '.ns-btn{flex:1;background:#161515;color:#FFFFFF;border:1px solid #161515;border-radius:4px;padding:8px;cursor:pointer;font-weight:600;font-size:14px}',
+      '.ns-btn.ns-alt{background:#FFFFFF;color:#161515}.ns-btn.ns-on{background:#F2EAD9;color:#161515}',
       '.ns-form{display:flex;gap:6px;margin-bottom:12px}',
       '.ns-in{flex:1;border:1px solid #161515;border-radius:4px;padding:7px 8px;background:#fff;color:#161515;font-size:13px}',
-      '.ns-recos{border-top:1px solid #161515;padding-top:8px;margin-bottom:10px}',
+      '.ns-recos{border-top:1px solid rgba(22,21,21,.14);padding-top:8px;margin-bottom:10px}',
       '.ns-recos .ns-mod{margin-bottom:6px}',
-      '.ns-reco{display:block;width:100%;text-align:left;background:#D8D0E8;color:#161515;border:0;border-radius:4px;padding:7px 8px;margin-bottom:6px;cursor:pointer;font-size:13px;font-weight:600}',
+      '.ns-reco{display:block;width:100%;text-align:left;background:#F2EAD9;color:#161515;border:0;border-radius:4px;padding:7px 8px;margin-bottom:6px;cursor:pointer;font-size:13px;font-weight:600}',
       '.ns-reco small{display:block;font-weight:400;opacity:.8}',
-      '.ns-route{border-top:1px solid #161515;padding-top:8px;margin:0;list-style:none}',
+      '.ns-route{border-top:1px solid rgba(22,21,21,.14);padding-top:8px;margin:0;list-style:none}',
       '.ns-route li{display:flex;gap:8px;padding:4px 0;font-size:13px;cursor:pointer}',
       '.ns-route li span:first-child{width:16px;text-align:center}',
       '.ns-route li.ns-cur{font-weight:700}',
-      '.ns-close{background:#D8D0E8;color:#161515;border-radius:4px;padding:10px;margin-bottom:10px}',
+      '.ns-close{background:#F2EAD9;color:#161515;border-radius:4px;padding:10px;margin-bottom:10px}',
       '.ns-mark{outline:2px solid #161515 !important;outline-offset:4px;transition:outline-color .3s}',
-      '.ns-tint{background:#D9F56A !important;color:#161515 !important}'
+      '.ns-tint{background:#F2EAD9 !important;color:#161515 !important}',
+      '.ns-root.ns-vmode{right:0;bottom:0}',
+      '.ns-big{position:fixed;left:calc(100vw - 130px);top:calc(100vh - 130px);cursor:pointer;transition:left .9s cubic-bezier(.2,.8,.2,1),top .9s cubic-bezier(.2,.8,.2,1);animation:ns-up .4s ease-out both}',
+      '.ns-big.ns-lookr .ns-dot{transform:scaleX(-1)}',
+      '.ns-big .ns-tap{position:absolute;left:50%;top:100%;transform:translateX(-50%);white-space:nowrap}',
+      '@media (prefers-reduced-motion:reduce){.ns-big{transition:none}}',
+      '@keyframes ns-up{0%{transform:translateY(220px)}100%{transform:translateY(0)}}',
+      '.ns-cap{position:fixed;right:124px;bottom:44px;max-width:340px;background:#FFFFFF;border:1px solid #161515;border-radius:4px;padding:12px 14px;font-size:16px;line-height:1.45}',
+      '.ns-cap p{margin:0}',
+      '.ns-tap{display:inline-block;margin-top:8px;background:#F2EAD9;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600}',
+      '.ns-vbtns{display:flex;gap:14px;margin-top:10px}',
+      '.ns-vbtns button{background:none;border:0;padding:0;color:rgba(22,21,21,.6);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline}'
     ].join('\n');
     document.head.appendChild(s);
   }
-  function dots() { return '<span class="ns-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>'; }
+  function agentDot(size) { return '<span class="ns-dot" aria-hidden="true" style="width:' + size + 'px;height:' + size + 'px"><span class="ns-eyes"><i></i><i></i></span></span>'; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   function mount() {
     css();
     var root = document.createElement('div'); root.className = 'ns-root'; el.root = root;
     document.body.appendChild(root); render();
+    root.addEventListener('pointerenter', function () { if (!RT && window.RTCPeerConnection) preloadToken().catch(function () {}); });
   }
-  function setLive() { if (el.root) el.root.classList.toggle('ns-live', speaking || listening); }
+  function setLive() {
+    var r = el.root; if (!r) return;
+    r.classList.toggle('ns-live', speaking || listening);
+    r.classList.toggle('ns-speaking', speaking);
+    r.classList.toggle('ns-listening', listening && !speaking);
+    r.classList.toggle('ns-thinking', !!thinking && !speaking && !listening);
+  }
+  function isVoice() { return S && S.mode === 'voice'; }
 
   function render(extra) {
     extra = extra || el.extra || {}; el.extra = extra;
     var root = el.root; if (!root) return;
+    root.classList.toggle('ns-vmode', isVoice());
+    if (isVoice()) { renderVoice(); return; }
     if (!open) {
-      root.innerHTML = '<button class="ns-pill" type="button">' + dots() + '<span>' + T('Demo guide', 'Guía de la demo') + '</span></button>';
+      root.innerHTML = '<button class="ns-pill" type="button">' + agentDot(22) + '<span>' + T('Demo guide', 'Guía de la demo') + '</span></button>';
       root.querySelector('.ns-pill').onclick = function () { open = true; render(); };
       setLive(); return;
     }
     var st = cur(), n = steps().length, name = S.profile && S.profile.name ? S.profile.name : T('Visitor', 'Visitante');
     var done = S.stepIndex >= n;
     var visited = S.visited || [];
-    var h = '<div class="ns-panel"><div class="ns-head">' + dots() + '<b>' + esc(name) + '</b><small>' +
+    var h = '<div class="ns-panel"><div class="ns-head">' + agentDot(28) + '<b>' + esc(name) + '</b><small>' +
       (done ? T('Demo done', 'Demo terminada') : T('Step ', 'Paso ') + (S.stepIndex + 1) + T(' of ', ' de ') + n) +
-      '</small><button class="ns-x" type="button" aria-label="Close">x</button></div><div class="ns-body">';
+      '</small><span class="ns-seg"><button type="button" class="ns-on" data-m="click">Click</button><button type="button" data-m="voice">' + T('Voice', 'Voz') + '</button></span><button class="ns-x" type="button" aria-label="Close">x</button></div><div class="ns-body">';
     if (extra.change) h += '<div class="ns-change">' + esc(extra.change) + '</div>';
     if (extra.reply) h += '<div class="ns-reply">' + esc(extra.reply) + '</div>';
     if (done || !st) {
@@ -163,6 +197,7 @@
     }).join('') + '</ol></div></div>';
     root.innerHTML = h; setLive();
     root.querySelector('.ns-x').onclick = function () { open = false; render(); };
+    root.querySelector('.ns-seg [data-m="voice"]').onclick = function () { setMode('voice'); };
     root.querySelector('.ns-next').onclick = next;
     var tb = root.querySelector('.ns-talk'); if (tb) tb.onclick = toggleTalk;
     root.querySelector('.ns-form').onsubmit = function (e) { e.preventDefault(); var i = root.querySelector('.ns-in'); var v = i.value.trim(); if (v) { i.value = ''; heard(v, 'typed'); } };
@@ -172,6 +207,82 @@
     Array.prototype.forEach.call(root.querySelectorAll('.ns-route li'), function (li) {
       li.onclick = function () { go(+li.getAttribute('data-i'), 'picked from route'); };
     });
+  }
+
+  /* ---------- voice mode: the bot just speaks ---------- */
+  var thinking = false, vPaused = false, vTimer = null, vCap = '';
+  function renderVoice() {
+    var root = el.root;
+    if (!root.querySelector('.ns-voice')) {
+      root.innerHTML = '<div class="ns-voice"><div class="ns-big" role="button" tabindex="0" title="' + T('Click to see the plan', 'Clic para ver el plan') + '">' + agentDot(96) + '<span class="ns-tapw"></span></div></div>';
+      var big = root.querySelector('.ns-big');
+      big.onclick = function () { setMode('click'); open = true; render(); };
+      setTimeout(function () { placeDot(); }, 450);
+    }
+    root.querySelector('.ns-tapw').innerHTML = pendingSay ? '<span class="ns-tap">' + T('Tap to continue', 'Toca para seguir') + '</span>' : '';
+    setLive();
+  }
+  var dotTarget = null, dotRaf = 0;
+  function placeDot(t) {
+    if (t) dotTarget = t;
+    var big = el.root && el.root.querySelector('.ns-big'); if (!big) return;
+    var n = dotTarget && document.contains(dotTarget) ? dotTarget : (document.querySelector('.ns-tint') || document.querySelector('main h1, main h2') || null);
+    var W = window.innerWidth, H = window.innerHeight, D = 96, x, y, lookRight = false;
+    if (!n) { x = W - D - 34; y = H - D - 34; }
+    else {
+      var r = n.getBoundingClientRect();
+      if (r.right + 18 + D < W) { x = r.right + 18; } else if (r.left - 18 - D > 0) { x = r.left - 18 - D; lookRight = true; } else { x = W - D - 24; }
+      y = Math.max(12, Math.min(H - D - 12, r.top + r.height / 2 - D / 2));
+    }
+    big.style.left = Math.round(x) + 'px'; big.style.top = Math.round(y) + 'px';
+    big.classList.toggle('ns-lookr', lookRight);
+  }
+  window.addEventListener('scroll', function () { if (!isVoice()) return; cancelAnimationFrame(dotRaf); dotRaf = requestAnimationFrame(function () { placeDot(); }); }, { passive: true });
+  window.addEventListener('resize', function () { if (isVoice()) placeDot(); });
+  function vStop() {
+    clearTimeout(vTimer); vTimer = null; thinking = false;
+    curU = null; pendingSay = null;
+    if (window.speechSynthesis) try { speechSynthesis.cancel(); } catch (e) {}
+    speaking = false; if (rec && listening) try { rec.stop(); } catch (e) {}
+  }
+  function vSpeakCurrent() {
+    var st = cur();
+    if (!st) { say(T('That is the demo. Next step: ', 'Esa es la demo. Siguiente paso: ') + (S.plan.nextStep || '')); return; }
+    var pre = S.stepIndex === 0 && S.plan.opening && !S.openingDone ? S.plan.opening + ' ' : '';
+    if (pre) { S.openingDone = true; save(); }
+    say(pre + st.say);
+  }
+  function vPause() { if (RT) { RT.send({ type: 'response.cancel' }); RT.send({ type: 'output_audio_buffer.clear' }); try { RT.mic.getTracks()[0].enabled = false; } catch (e) {} } vPaused = true; vStop(); record({ type: 'voice', text: 'pause', reason: 'voice mode pause' }); render(); }
+  function vResume() { if (RT) try { RT.mic.getTracks()[0].enabled = true; } catch (e) {} vPaused = false; render(); vSpeakCurrent(); }
+  function setMode(m) {
+    if (m === 'click' && RT) { S.rtOn = false; save(); stopRT(); }
+    vStop(); vPaused = false; vCap = '';
+    if (talkOn) { talkOn = false; }
+    S.mode = m; save();
+    record({ type: 'mode', text: m, reason: 'demo guide level switch' });
+    if (el.root) el.root.innerHTML = '';
+    if (m === 'click') { open = true; render(); return; }
+    if (window.RTCPeerConnection && !RT) {
+      S.rtOn = true; save(); render(); vSpeakCurrent();
+      startRT().then(function () { record({ type: 'mic', role: 'agent', text: 'openai realtime on (voice mode)', reason: 'voice' }); })
+        .catch(function (e) { console.warn('[realtime] fallback to browser voice:', e && e.message); S.rtOn = false; save(); rtQueue = []; vSpeakCurrent(); });
+      return;
+    }
+    render(); vSpeakCurrent();
+  }
+  /* after each spoken line: listen about 4 s; silence moves on, words go to heard() */
+  function vAfter() {
+    if (!isVoice() || vPaused || RT || (S && S.rtOn)) return;
+    clearTimeout(vTimer);
+    if (S.stepIndex >= steps().length) return;
+    if (rec) { try { rec.lang = lang() === 'es' ? 'es-ES' : 'en-US'; rec.start(); } catch (e) {} }
+    else { listening = true; setLive(); }
+    vTimer = setTimeout(function () {
+      if (!isVoice() || vPaused || speaking) return;
+      if (rec) try { rec.stop(); } catch (e) {}
+      listening = false; thinking = true; setLive();
+      vTimer = setTimeout(function () { thinking = false; setLive(); if (isVoice() && !vPaused) next(); }, 500);
+    }, 4200);
   }
 
   /* ---------- recommendations (memory /api/recommend) ---------- */
@@ -236,59 +347,215 @@
     return null;
   }
 
-  /* ---------- OpenAI Realtime voice (falls back to browser speech) ---------- */
-  var RT = null, rtQueue = [];
+  /* ---------- in-call frame: navigating never cuts the call (idea from Kali) ---------- */
+  var FRAME = null;
+  function D() { try { return FRAME && FRAME.contentDocument && FRAME.contentDocument.body ? FRAME.contentDocument : document; } catch (e) { return document; } }
+  function frameGo(url, after) {
+    if (!FRAME) {
+      FRAME = document.createElement('iframe'); FRAME.className = 'ns-frame';
+      FRAME.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483000;background:#fff';
+      document.body.appendChild(FRAME);
+      if (el.root) { el.root.style.zIndex = '2147483600'; document.body.appendChild(el.root); }
+    }
+    FRAME.onload = function () { rtLog('frame', url); try { after && after(); } catch (e) { console.warn(e); } };
+    FRAME.src = url;
+  }
+  function closeFrame() { if (!FRAME) return; var u = null; try { u = FRAME.contentWindow.location.href; } catch (e) {} FRAME.remove(); FRAME = null; if (u && u !== location.href) location.href = u; }
+
+  /* ---------- OpenAI Realtime voice: the model is the live brain (tools drive the demo) ---------- */
+  var RT = null, rtQueue = [], DBG = /rtdebug/.test(location.search) || localStorage.getItem('nextstep.rtdebug');
+  function rtLog() { if (DBG) console.log.apply(console, ['[realtime]'].concat([].slice.call(arguments))); }
+  function rtContext() {
+    var pr = S.profile || {}, st = cur();
+    var feats = (S.features || []).map(function (f) { return '- ' + f.id + ': ' + f.name + ' (' + (f.module || '') + '): ' + (f.does || '') + (f.proof ? ' Proof: ' + f.proof : ''); }).join('\n');
+    var plan = steps().map(function (s, i) { return (i === S.stepIndex ? '>> ' : '   ') + (i + 1) + '. ' + s.id + ' ' + s.name; }).join('\n');
+    var hist = (S.rtHist || []).slice(-8).map(function (h) { return h.r + ': ' + h.t; }).join('\n');
+    return 'You are the live demo guide for the product shown on screen (Kestrel). You talk with a ' + (pr.title || pr.role || 'visitor') + (pr.company ? ' from ' + pr.company : '') + (pr.sector ? ' (' + pr.sector + ')' : '') + '.\n' +
+      'Speak ' + (lang() === 'es' ? 'Spanish from Spain' : 'English') + '. Be brief: max 2 short sentences, then a short question.\n' +
+      'The principle: what to show FIRST is recalculated after everything the visitor says.\n' +
+      'Rules: if what the visitor says is better answered by another feature than the current one, call show_feature with its id (do not just describe it). If they want to continue, call next_step. If the current screen already answers, call read_screen and explain it using what is really on screen; use point_at to show where. To demo an action, use click or type_into (never click delete, send, pay or save buttons). Never invent features, prices or numbers that are not listed.\n' +
+      'Features:\n' + feats + '\nCurrent plan (>> is on screen now):\n' + plan + (st ? '\nOn screen now: ' + st.name + ': ' + (st.say || '') : '') + (hist ? '\nConversation so far:\n' + hist : '');
+  }
+  var RT_TOOLS = [
+    { type: 'function', name: 'show_feature', description: 'Change the plan and take the visitor to the screen of this feature now.', parameters: { type: 'object', properties: { feature_id: { type: 'string' }, reason: { type: 'string', description: 'short reason, in the visitor language' } }, required: ['feature_id'] } },
+    { type: 'function', name: 'next_step', description: 'Go to the next step of the plan.', parameters: { type: 'object', properties: {} } },
+    { type: 'function', name: 'read_screen', description: 'Read what is visible on the current screen (headings, numbers, buttons, fields). Use it before explaining details or when asked about something on screen.', parameters: { type: 'object', properties: {} } },
+    { type: 'function', name: 'click', description: 'Click a button, tab or link on the current screen, by its visible text. Use it to demo an action live.', parameters: { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] } },
+    { type: 'function', name: 'type_into', description: 'Type a value into an input field on screen, found by its label or placeholder.', parameters: { type: 'object', properties: { field: { type: 'string' }, value: { type: 'string' } }, required: ['field', 'value'] } },
+    { type: 'function', name: 'point_at', description: 'Scroll to and highlight a piece of text on screen to point at what you are talking about.', parameters: { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] } }
+  ];
+  /* ---------- screen: read / click / type / point (same page, direct DOM) ---------- */
+  function onScreen(n) { return n && !(el.root && el.root.contains(n)) && n.offsetParent !== null; }
+  function readScreen() {
+    var out = [], seen = {};
+    D().querySelectorAll('h1,h2,h3,h4,p,li,td,th,label,button,a,[role=tab],input,select,textarea,.kpi,.stat,.value').forEach(function (n) {
+      if (!onScreen(n) || n.closest('nav,aside,header,[role=navigation]')) return;
+      var t = (n.tagName === 'INPUT' || n.tagName === 'TEXTAREA') ? '[field ' + (n.getAttribute('aria-label') || n.placeholder || n.name || '') + '=' + (n.value || '') + ']' : (n.innerText || '').replace(/\s+/g, ' ').trim();
+      if (!t || t.length > 200 || seen[t]) return; seen[t] = 1;
+      out.push((/^(BUTTON|A)$/.test(n.tagName) || n.getAttribute('role') === 'tab' ? '[button] ' : '') + t);
+    });
+    return { title: D().title, path: (D().location || location).pathname, content: out.join('\n').slice(0, 3500), menu: 'other screens are reachable with show_feature' };
+  }
+  function findByText(text, sel) {
+    var q = norm(text).trim(), best = null, bl = 1e9;
+    D().querySelectorAll(sel).forEach(function (n) {
+      if (!onScreen(n)) return;
+      var t = norm(n.innerText || n.value || n.getAttribute('aria-label') || n.placeholder || '');
+      if (t && t.indexOf(q) >= 0 && t.length < bl) { best = n; bl = t.length; }
+    });
+    return best;
+  }
+  if (DBG) window.__nsDebug = { screen: function (n, x) { return screenTool(n, x || {}); }, fakeRT: function () { RT = { ready: true, sent: [], send: function (o) { this.sent.push(o.type); }, mic: { getTracks: function () { return []; } }, pc: { close: function () {} } }; return RT; }, go: function (i) { go(i, 'test'); }, tool: function (n, x) { rtToolGuarded(n, x || {}, 'c1'); }, rt: function () { return RT; }, steps: function () { return steps().map(function (s) { return s.id; }); } };
+  function flash(n) { try { n.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (isVoice()) setTimeout(function () { placeDot(n); }, 600); var o = n.style.outline; n.style.outline = '3px solid #ff3b30'; n.style.outlineOffset = '3px'; setTimeout(function () { n.style.outline = o; }, 2500); } catch (e) {} }
+  function screenTool(name, args) {
+    if (name === 'read_screen') return readScreen();
+    if (name === 'point_at') { var n = findByText(args.text || '', 'h1,h2,h3,h4,p,li,td,th,label,button,a,span,div'); if (!n) return { ok: false, error: 'not on screen' }; flash(n); record({ type: 'highlight', role: 'agent', text: args.text, source: 'widget-llm' }); return { ok: true }; }
+    if (name === 'click') {
+      var b = findByText(args.text || '', 'button,a,[role=tab],[role=button],input[type=submit],summary,label');
+      if (!b) return { ok: false, error: 'no button with that text', screen: readScreen().content.slice(0, 800) };
+      flash(b); record({ type: 'click', role: 'agent', text: args.text, source: 'widget-llm' });
+      setTimeout(function () { b.click(); }, 500);
+      return { ok: true, clicked: (b.innerText || args.text).slice(0, 80), note: 'call read_screen to see the result' };
+    }
+    if (name === 'type_into') {
+      var f = null, q = norm(args.field || '');
+      D().querySelectorAll('input,textarea').forEach(function (n) {
+        if (f || !onScreen(n)) return;
+        var lab = n.id && D().querySelector('label[for="' + n.id + '"]');
+        var t = norm([n.getAttribute('aria-label'), n.placeholder, n.name, lab && lab.innerText].join(' '));
+        if (t.indexOf(q) >= 0) f = n;
+      });
+      if (!f) return { ok: false, error: 'no field like that' };
+      flash(f); f.focus(); f.value = args.value; var W = D().defaultView || window; f.dispatchEvent(new W.Event('input', { bubbles: true })); f.dispatchEvent(new W.Event('change', { bubbles: true }));
+      record({ type: 'type', role: 'agent', text: args.field + '=' + args.value, source: 'widget-llm' });
+      return { ok: true };
+    }
+    return null;
+  }
+  function hist(r, t) { S.rtHist = (S.rtHist || []).concat([{ r: r, t: String(t).slice(0, 300) }]).slice(-12); save(); }
   function rtSpeak(text) {
+    // Narration of a newly opened screen: the model presents it in its own words.
     if (!RT || !RT.ready) { rtQueue.push(text); return; }
-    RT.send({ type: 'response.cancel' });
-    RT.send({ type: 'response.create', response: { instructions: 'Say this to the visitor, naturally and warmly, in ' + (lang() === 'es' ? 'Spanish from Spain' : 'English') + ', without adding anything: ' + text } });
+    RT.send({ type: 'response.create', response: { instructions: 'The screen just changed. Present it briefly, in your own words, based on: ' + text + '. Then ask one short question.' } });
+  }
+  // Margin before acting (Kali): actions wait a moment; if the visitor keeps talking, they are dropped silently.
+  var GRACE_MS = 1200, ACTS = { show_feature: 1, next_step: 1, click: 1, type_into: 1 }, spokeAt = 0;
+  function rtToolGuarded(name, args, callId) {
+    if (!ACTS[name]) return rtTool(name, args, callId);
+    var asked = Date.now();
+    setTimeout(function () {
+      if (!RT) return;
+      if (spokeAt > asked) {
+        rtLog('held', name, 'visitor kept talking');
+        RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: JSON.stringify({ ok: false, held: 'the visitor kept talking, so this was not done; follow what they say now' }) } });
+        return;
+      }
+      rtTool(name, args, callId);
+    }, GRACE_MS);
+  }
+  var STOP_RE = /^(para|parar|stop|espera|calla|cállate|callate|silencio|wait|hold on)\b/i;
+  function rtTool(name, args, callId) {
+    var out = { ok: true };
+    var sc = screenTool(name, args);
+    if (sc) { RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(sc) } }); RT.send({ type: 'response.create' }); return; }
+    if (name === 'show_feature') {
+      var f = (S.features || []).filter(function (x) { return x.id === args.feature_id; })[0];
+      if (!f) out = { ok: false, error: 'unknown feature id' };
+      else {
+        var st = cur();
+        if (st && st.id === f.id) { highlight(st); out = { ok: true, note: 'already on screen' }; }
+        else {
+          var ins = insertNext(f);
+          var change = T('Plan changed: next is ' + f.name, 'Plan cambiado: lo siguiente es ' + f.name) + (args.reason ? ' (' + args.reason + ')' : '');
+          record({ type: 'replan', role: 'agent', text: change, page_id: f.id, reason: 'llm: ' + (args.reason || '') , source: 'widget-llm' });
+          el.extra = { change: change };
+          out = { ok: true, navigating_to: f.name };
+          RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(out) } });
+          setTimeout(function () { go(ins, 'llm: ' + (args.reason || f.name)); }, 150);
+          return;
+        }
+      }
+    } else if (name === 'next_step') {
+      RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: '{"ok":true}' } });
+      setTimeout(next, 150); return;
+    }
+    RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(out) } });
+    RT.send({ type: 'response.create' });
+  }
+  var PRE = null;
+  function preloadToken() {
+    if (PRE && Date.now() - PRE.at < 40000) return PRE.p;
+    var p = fetch('/api/session', { method: 'POST' }).then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || r.status); }); });
+    PRE = { at: Date.now(), p: p }; p.catch(function () { PRE = null; });
+    return p;
   }
   function startRT() {
-    return fetch('/api/session', { method: 'POST' }).then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || r.status); }); }).then(function (j) {
+    var pre = preloadToken(); PRE = null;
+    return pre.then(function (j) {
       var pc = new RTCPeerConnection(), audio = new Audio(); audio.autoplay = true;
       document.addEventListener('pointerdown', function () { try { audio.play(); } catch (e) {} }, true);
       pc.ontrack = function (e) { audio.srcObject = e.streams[0]; };
       var dc = pc.createDataChannel('oai-events');
-      var rt = { pc: pc, dc: dc, ready: false, send: function (o) { if (dc.readyState === 'open') dc.send(JSON.stringify(o)); } };
+      var rt = { pc: pc, dc: dc, ready: false, send: function (o) { if (dc.readyState === 'open') { rtLog('>>', o.type); dc.send(JSON.stringify(o)); } } };
+      var done = {};
       dc.onopen = function () {
-        rt.send({ type: 'session.update', session: { type: 'realtime', instructions: 'You are the voice of a product demo guide. Only speak the exact lines you are given in response instructions.', audio: { input: { transcription: { model: 'gpt-4o-mini-transcribe' }, turn_detection: { type: 'server_vad', silence_duration_ms: 600, create_response: false } } } } });
-        rt.ready = true; var q = rtQueue; rtQueue = []; q.forEach(rtSpeak);
+        rt.send({ type: 'session.update', session: { type: 'realtime', instructions: rtContext(), tools: RT_TOOLS, tool_choice: 'auto',
+          audio: { input: { noise_reduction: { type: 'far_field' }, transcription: { model: 'gpt-4o-mini-transcribe', language: lang() },
+            turn_detection: { type: 'semantic_vad', eagerness: 'low', create_response: true, interrupt_response: false } } } } });
+        rt.ready = true; var q = rtQueue; rtQueue = []; q.slice(-1).forEach(rtSpeak);
       };
       dc.onmessage = function (ev) {
         var m; try { m = JSON.parse(ev.data); } catch (e) { return; }
-        if (m.type === 'conversation.item.input_audio_transcription.completed' && m.transcript && m.transcript.trim()) heard(m.transcript.trim(), 'voice');
-        if (m.type === 'input_audio_buffer.speech_started') { listening = true; setLive(); rt.send({ type: 'response.cancel' }); }
+        rtLog('<<', m.type, m.type === 'error' ? m.error : '');
+        if (m.type === 'conversation.item.input_audio_transcription.completed' && m.transcript && m.transcript.trim()) {
+          var t = m.transcript.trim(); hist('visitor', t);
+          if (STOP_RE.test(t)) { rt.send({ type: 'response.cancel' }); rt.send({ type: 'output_audio_buffer.clear' }); rtLog('stop word', t); }
+          record({ type: 'utterance', role: 'user', text: t, reason: 'voice', source: 'widget-realtime' });
+          el.extra = { reply: '🗣 ' + t }; if (open) render(el.extra);
+        }
+        if (m.type === 'response.output_audio_transcript.done' && m.transcript) { hist('agent', m.transcript); record({ type: 'reply', role: 'agent', text: m.transcript, source: 'widget-realtime' }); }
+        if (m.type === 'response.function_call_arguments.done' && !done[m.call_id]) {
+          done[m.call_id] = 1; var args = {}; try { args = JSON.parse(m.arguments || '{}'); } catch (e) {}
+          rtLog('tool', m.name, args); rtToolGuarded(m.name, args, m.call_id);
+        }
+        if (m.type === 'input_audio_buffer.speech_started') { listening = true; spokeAt = Date.now(); setLive(); }
         if (m.type === 'input_audio_buffer.speech_stopped') { listening = false; setLive(); }
-        if (m.type === 'error' && m.error && !/no active response/i.test(m.error.message || '')) console.warn('[realtime]', m.error.message);
+        if (m.type === 'output_audio_buffer.started') { speaking = true; setLive(); }
+        if (m.type === 'output_audio_buffer.stopped') { speaking = false; setLive(); }
+        if (m.type === 'error') console.warn('[realtime] error:', m.error && m.error.message);
       };
-      return navigator.mediaDevices.getUserMedia({ audio: true }).then(function (mic) {
+      pc.onconnectionstatechange = function () { rtLog('pc', pc.connectionState); if (pc.connectionState === 'failed') console.warn('[realtime] connection failed'); };
+      return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function (mic) {
         rt.mic = mic; pc.addTrack(mic.getTracks()[0]);
         return pc.createOffer();
       }).then(function (offer) { return pc.setLocalDescription(offer).then(function () {
         return fetch('https://api.openai.com/v1/realtime/calls', { method: 'POST', body: offer.sdp, headers: { Authorization: 'Bearer ' + j.value, 'Content-Type': 'application/sdp' } });
-      }); }).then(function (r) { if (!r.ok) throw new Error('webrtc ' + r.status); return r.text(); })
+      }); }).then(function (r) { if (!r.ok) return r.text().then(function (t) { throw new Error('webrtc ' + r.status + ' ' + t.slice(0, 200)); }); return r.text(); })
         .then(function (sdp) { return pc.setRemoteDescription({ type: 'answer', sdp: sdp }); })
-        .then(function () { RT = rt; return rt; });
+        .then(function () { RT = rt; console.info('[realtime] connected (OpenAI). Debug: add ?rtdebug=1'); return rt; });
     });
   }
-  function stopRT() { if (!RT) return; try { RT.mic.getTracks().forEach(function (t) { t.stop(); }); RT.pc.close(); } catch (e) {} RT = null; }
+  function stopRT() { closeFrame(); if (!RT) return; try { RT.mic.getTracks().forEach(function (t) { t.stop(); }); RT.pc.close(); } catch (e) {} RT = null; }
 
   /* ---------- voice ---------- */
   function say(text) {
-    if (text && (RT || (S && S.rtOn))) { rtSpeak(text); return; }
+    if (text && (RT || (S && S.rtOn))) { if (isVoice()) { vCap = text; render(); } rtSpeak(text); return; }
+    if (isVoice() && text) { vCap = text; clearTimeout(vTimer); if (rec && listening) try { rec.stop(); } catch (e) {} render(); }
+    if (text && isVoice() && !window.speechSynthesis) { vTimer = setTimeout(vAfter, Math.min(12000, 1500 + text.length * 55)); return; }
     if (!text || !window.speechSynthesis) return;
     try {
       speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text);
       u.lang = lang() === 'es' ? 'es-ES' : 'en-US';
-      u.onstart = function () { speaking = true; setLive(); };
-      u.onend = function () { speaking = false; setLive(); if (talkOn) listen(); };
-      u.onerror = function (e) { speaking = false; setLive(); if (e && e.error === 'not-allowed') pendingSay = text; else if (talkOn) listen(); };
+      curU = u;
+      u.onstart = function () { if (u !== curU) return; speaking = true; setLive(); };
+      u.onend = function () { if (u !== curU) return; speaking = false; setLive(); if (talkOn) listen(); if (isVoice()) vAfter(); };
+      u.onerror = function (e) { if (u !== curU) return; speaking = false; setLive(); if (e && e.error === 'not-allowed') { pendingSay = text; if (isVoice()) render(); } else if (talkOn) listen(); else if (isVoice() && e && e.error !== 'interrupted' && e.error !== 'canceled') vAfter(); };
       speechSynthesis.speak(u);
     } catch (e) {}
   }
   /* Chrome blocks speech on a fresh page until the visitor interacts: replay the line on the first click or key. */
-  var pendingSay = null;
+  var pendingSay = null, curU = null;
   function flushSay() { if (pendingSay) { var t = pendingSay; pendingSay = null; say(t); } }
   document.addEventListener('pointerdown', flushSay, true);
   document.addEventListener('keydown', flushSay, true);
@@ -297,9 +564,9 @@
     if (!R) return null;
     var r = new R(); r.continuous = false; r.interimResults = false;
     r.onstart = function () { listening = true; setLive(); };
-    r.onend = function () { listening = false; setLive(); if (talkOn && !speaking) setTimeout(listen, 250); };
+    r.onend = function () { listening = false; setLive(); if (talkOn && !speaking && !isVoice()) setTimeout(listen, 250); };
     r.onerror = function (e) { if (e.error === 'not-allowed') { talkOn = false; render(); } };
-    r.onresult = function (e) { var t = e.results[0][0].transcript; if (t) heard(t, 'voice'); };
+    r.onresult = function (e) { var t = e.results[0][0].transcript; if (t) { if (isVoice()) { clearTimeout(vTimer); if (vPaused) return; } heard(t, 'voice'); } };
     return r;
   }
   function listen() { if (!rec || !talkOn || listening || speaking) return; try { rec.lang = lang() === 'es' ? 'es-ES' : 'en-US'; rec.start(); } catch (e) {} }
@@ -319,6 +586,13 @@
   function go(i, reason) {
     var st = steps()[i];
     S.stepIndex = i; save();
+    if (st && RT && RT.ready) {
+      record({ type: 'navigate', text: st.name, page_id: st.id, page_url: location.origin + pathOf(st), reason: reason || 'next in plan', source: 'widget-realtime' });
+      S.visited = S.visited || []; if (S.visited.indexOf(st.id) < 0) S.visited.push(st.id); save();
+      render();
+      frameGo(pathOf(st), function () { highlight(st); rtSpeak(st.say); });
+      return;
+    }
     if (!st) { render({}); var ns = S.plan.nextStep || ''; say(T('That is the demo. Next step: ', 'Esa es la demo. Siguiente paso: ') + ns); record({ type: 'close', text: ns, reason: reason || 'end of plan' }); return; }
     record({ type: 'navigate', text: st.name, page_id: st.id, page_url: location.origin + pathOf(st), reason: reason || 'next in plan' });
     if (pathOf(st) === location.pathname) { arrive(); return; }
@@ -330,7 +604,7 @@
   }
 
   function highlight(st) {
-    var t = (st && document.querySelector('[data-feature="' + st.id + '"]')) || document.querySelector('main') || document.body;
+    var d = D(), t = (st && d.querySelector('[data-feature="' + st.id + '"]')) || d.querySelector('main') || d.body;
     try { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
     var hd = t.querySelector && t.querySelector('h1, h2, h3');
     t.classList.add('ns-mark'); if (hd) hd.classList.add('ns-tint');
@@ -340,6 +614,7 @@
     var st = cur(); el.extra = el.extra || {};
     if (!st) { render(); return; }
     S.visited = S.visited || []; if (S.visited.indexOf(st.id) < 0) S.visited.push(st.id); save();
+    if (isVoice()) { vCap = ''; render(); highlight(st); setTimeout(function () { placeDot(document.querySelector('.ns-tint') || document.querySelector('.ns-mark')); }, 650); if (!vPaused) setTimeout(function () { if (isVoice() && !vPaused) vSpeakCurrent(); }, 400); return; }
     open = true; render();
     highlight(st);
     var pre = S.stepIndex === 0 && S.plan.opening && !S.openingDone ? S.plan.opening + ' ' : '';
@@ -369,6 +644,7 @@
       why: [T('You asked about it', 'Lo has pedido')], say: f.does + '. ' + f.proof + '.', check: null, role: 'core' };
   }
   function heard(text, source) {
+    if (RT && RT.ready && source === 'typed') { hist('visitor', text); record({ type: 'utterance', role: 'user', text: text, reason: 'typed', source: 'widget-realtime' }); RT.send({ type: 'conversation.item.create', item: { type: 'message', role: 'user', content: [{ type: 'input_text', text: text }] } }); RT.send({ type: 'response.create' }); return; }
     record({ type: 'utterance', role: 'user', text: text, reason: source, source: 'widget-' + source });
     var ri = matchReco(text);
     if (ri) {
