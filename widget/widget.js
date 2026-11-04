@@ -79,44 +79,64 @@
     s.textContent = [
       '.ns-root{position:fixed;right:20px;bottom:20px;z-index:2147483000;font-family:"Schibsted Grotesk",system-ui,sans-serif;color:#161515;font-size:14px;line-height:1.4}',
       '.ns-root *{box-sizing:border-box;font-family:inherit}',
-      '.ns-pill{display:flex;align-items:center;gap:10px;background:#161515;color:#FFDFF3;border:0;border-radius:4px;padding:10px 14px;cursor:pointer;font-size:14px;font-weight:600}',
-      '.ns-dots{display:inline-flex;align-items:center;gap:3px;height:16px}',
-      '.ns-dots i{display:block;width:4px;height:4px;border-radius:2px;background:currentColor;transition:height .12s}',
-      '.ns-live .ns-dots i{animation:ns-lvl .9s ease-in-out infinite}',
-      '.ns-dots i:nth-child(2){animation-delay:.1s}.ns-dots i:nth-child(3){animation-delay:.25s}.ns-dots i:nth-child(4){animation-delay:.05s}.ns-dots i:nth-child(5){animation-delay:.3s}.ns-dots i:nth-child(6){animation-delay:.15s}',
-      '@keyframes ns-lvl{0%,100%{height:4px}50%{height:14px}}',
-      '.ns-panel{width:360px;max-height:80vh;overflow:auto;background:#FFDFF3;border:1px solid #161515;border-radius:4px}',
-      '.ns-head{display:flex;align-items:center;gap:10px;background:#161515;color:#FFDFF3;padding:10px 12px}',
-      '.ns-head b{flex:1;font-weight:600}.ns-head small{opacity:.85}',
-      '.ns-x{background:none;border:0;color:#FFDFF3;cursor:pointer;font-size:16px;padding:0 4px}',
+      '.ns-pill{display:flex;align-items:center;gap:10px;background:#FFFFFF;color:#161515;border:1px solid #161515;border-radius:999px;padding:7px 14px 7px 8px;cursor:pointer;font-size:14px;font-weight:600}',
+      '.ns-dot{position:relative;display:inline-block;flex:none;border-radius:50%;background:#161515}',
+      '.ns-eyes{position:absolute;left:0;right:0;top:22%;height:34%;display:flex;justify-content:center;gap:18%;transition:transform .3s ease;animation:ns-glance 7s ease-in-out infinite}',
+      '.ns-eyes i{display:block;width:14%;height:100%;border-radius:999px;background:#FFFFFF;transform-origin:50% 50%;transition:transform .2s;animation:ns-blink 5s infinite}',
+      '.ns-eyes i:nth-child(2){animation-delay:.02s}',
+      '@keyframes ns-blink{0%,96%,100%{transform:scaleY(1)}97.2%{transform:scaleY(.1)}}',
+      '@keyframes ns-glance{0%,40%,100%{transform:translateX(0)}45%,55%{transform:translateX(-2px)}85%,92%{transform:translateX(2px)}}',
+      '@keyframes ns-bob{0%{transform:translateY(-1px)}100%{transform:translateY(1.5px)}}',
+      '.ns-speaking .ns-eyes{animation:ns-bob .4s ease-in-out infinite alternate}',
+      '.ns-listening .ns-eyes{animation:none;transform:translate(-6%,4%)}.ns-listening .ns-eyes i{animation:none;transform:scaleY(1.15)}',
+      '.ns-thinking .ns-eyes{animation:none;transform:translate(7%,-10%)}',
+      '.ns-vmode .ns-eyes{animation:none;transform:translateX(-12%)}.ns-vmode.ns-speaking .ns-eyes{animation:ns-bobl .4s ease-in-out infinite alternate}',
+      '@keyframes ns-bobl{0%{transform:translate(-12%,-1px)}100%{transform:translate(-12%,1.5px)}}',
+      '.ns-vmode.ns-listening .ns-eyes{transform:translate(-16%,4%)}.ns-vmode.ns-thinking .ns-eyes{transform:translate(4%,-10%)}',
+      '@media (prefers-reduced-motion:reduce){.ns-eyes,.ns-eyes i,.ns-big{animation:none !important}}',
+      '.ns-panel{width:360px;max-height:80vh;overflow:auto;background:#FFFFFF;border:1px solid #161515;border-radius:4px}',
+      '.ns-head{display:flex;align-items:center;gap:8px;background:#FFFFFF;color:#161515;padding:10px 12px;border-bottom:1px solid rgba(22,21,21,.14)}',
+      '.ns-head b{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.ns-head small{color:rgba(22,21,21,.6);white-space:nowrap}',
+      '.ns-seg{display:inline-flex;border:1px solid #161515;border-radius:4px;overflow:hidden;flex:none}',
+      '.ns-seg button{background:#FFFFFF;color:#161515;border:0;padding:3px 7px;font-size:12px;font-weight:600;cursor:pointer}.ns-seg button.ns-on{background:#161515;color:#FFFFFF}',
+      '.ns-x{background:none;border:0;color:#161515;cursor:pointer;font-size:16px;padding:0 4px}',
       '.ns-body{padding:12px}',
-      '.ns-mod{font-size:12px;text-transform:uppercase;letter-spacing:.04em;opacity:.7}',
+      '.ns-mod{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:rgba(22,21,21,.6)}',
       '.ns-name{font-size:18px;font-weight:700;margin:2px 0 6px}',
       '.ns-say{margin:0 0 8px}',
       '.ns-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}',
-      '.ns-chip{background:#D8D0E8;color:#161515;border-radius:4px;padding:2px 8px;font-size:12px}',
-      '.ns-change{background:#D9F56A;color:#161515;border-radius:4px;padding:8px;margin-bottom:10px;font-size:13px}',
+      '.ns-chip{background:#F2EAD9;color:#161515;border-radius:4px;padding:2px 8px;font-size:12px}',
+      '.ns-change{background:#FFFFFF;color:#161515;border:1px solid rgba(22,21,21,.14);border-radius:4px;padding:8px;margin-bottom:10px;font-size:13px}',
+      '.ns-change:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#D9F56A;margin-right:6px;vertical-align:1px}',
       '.ns-reply{background:#F2EAD9;color:#161515;border-radius:4px;padding:8px;margin-bottom:10px;font-size:13px}',
       '.ns-btns{display:flex;gap:8px;margin-bottom:8px}',
-      '.ns-btn{flex:1;background:#161515;color:#FFDFF3;border:1px solid #161515;border-radius:4px;padding:8px;cursor:pointer;font-weight:600;font-size:14px}',
-      '.ns-btn.ns-alt{background:#FFDFF3;color:#161515}.ns-btn.ns-on{background:#D9F56A;color:#161515}',
+      '.ns-btn{flex:1;background:#161515;color:#FFFFFF;border:1px solid #161515;border-radius:4px;padding:8px;cursor:pointer;font-weight:600;font-size:14px}',
+      '.ns-btn.ns-alt{background:#FFFFFF;color:#161515}.ns-btn.ns-on{background:#F2EAD9;color:#161515}',
       '.ns-form{display:flex;gap:6px;margin-bottom:12px}',
       '.ns-in{flex:1;border:1px solid #161515;border-radius:4px;padding:7px 8px;background:#fff;color:#161515;font-size:13px}',
-      '.ns-recos{border-top:1px solid #161515;padding-top:8px;margin-bottom:10px}',
+      '.ns-recos{border-top:1px solid rgba(22,21,21,.14);padding-top:8px;margin-bottom:10px}',
       '.ns-recos .ns-mod{margin-bottom:6px}',
-      '.ns-reco{display:block;width:100%;text-align:left;background:#D8D0E8;color:#161515;border:0;border-radius:4px;padding:7px 8px;margin-bottom:6px;cursor:pointer;font-size:13px;font-weight:600}',
+      '.ns-reco{display:block;width:100%;text-align:left;background:#F2EAD9;color:#161515;border:0;border-radius:4px;padding:7px 8px;margin-bottom:6px;cursor:pointer;font-size:13px;font-weight:600}',
       '.ns-reco small{display:block;font-weight:400;opacity:.8}',
-      '.ns-route{border-top:1px solid #161515;padding-top:8px;margin:0;list-style:none}',
+      '.ns-route{border-top:1px solid rgba(22,21,21,.14);padding-top:8px;margin:0;list-style:none}',
       '.ns-route li{display:flex;gap:8px;padding:4px 0;font-size:13px;cursor:pointer}',
       '.ns-route li span:first-child{width:16px;text-align:center}',
       '.ns-route li.ns-cur{font-weight:700}',
-      '.ns-close{background:#D8D0E8;color:#161515;border-radius:4px;padding:10px;margin-bottom:10px}',
+      '.ns-close{background:#F2EAD9;color:#161515;border-radius:4px;padding:10px;margin-bottom:10px}',
       '.ns-mark{outline:2px solid #161515 !important;outline-offset:4px;transition:outline-color .3s}',
-      '.ns-tint{background:#D9F56A !important;color:#161515 !important}'
+      '.ns-tint{background:#F2EAD9 !important;color:#161515 !important}',
+      '.ns-root.ns-vmode{right:0;bottom:0}',
+      '.ns-big{position:fixed;right:-53px;bottom:-53px;animation:ns-up .4s ease-out both}',
+      '@keyframes ns-up{0%{transform:translateY(220px)}100%{transform:translateY(0)}}',
+      '.ns-cap{position:fixed;right:124px;bottom:44px;max-width:340px;background:#FFFFFF;border:1px solid #161515;border-radius:4px;padding:12px 14px;font-size:16px;line-height:1.45}',
+      '.ns-cap p{margin:0}',
+      '.ns-tap{display:inline-block;margin-top:8px;background:#F2EAD9;border-radius:4px;padding:2px 8px;font-size:12px;font-weight:600}',
+      '.ns-vbtns{display:flex;gap:14px;margin-top:10px}',
+      '.ns-vbtns button{background:none;border:0;padding:0;color:rgba(22,21,21,.6);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline}'
     ].join('\n');
     document.head.appendChild(s);
   }
-  function dots() { return '<span class="ns-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>'; }
+  function agentDot(size) { return '<span class="ns-dot" aria-hidden="true" style="width:' + size + 'px;height:' + size + 'px"><span class="ns-eyes"><i></i><i></i></span></span>'; }
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
 
   function mount() {
@@ -124,22 +144,31 @@
     var root = document.createElement('div'); root.className = 'ns-root'; el.root = root;
     document.body.appendChild(root); render();
   }
-  function setLive() { if (el.root) el.root.classList.toggle('ns-live', speaking || listening); }
+  function setLive() {
+    var r = el.root; if (!r) return;
+    r.classList.toggle('ns-live', speaking || listening);
+    r.classList.toggle('ns-speaking', speaking);
+    r.classList.toggle('ns-listening', listening && !speaking);
+    r.classList.toggle('ns-thinking', !!thinking && !speaking && !listening);
+  }
+  function isVoice() { return S && S.mode === 'voice'; }
 
   function render(extra) {
     extra = extra || el.extra || {}; el.extra = extra;
     var root = el.root; if (!root) return;
+    root.classList.toggle('ns-vmode', isVoice());
+    if (isVoice()) { renderVoice(); return; }
     if (!open) {
-      root.innerHTML = '<button class="ns-pill" type="button">' + dots() + '<span>' + T('Demo guide', 'Guía de la demo') + '</span></button>';
+      root.innerHTML = '<button class="ns-pill" type="button">' + agentDot(22) + '<span>' + T('Demo guide', 'Guía de la demo') + '</span></button>';
       root.querySelector('.ns-pill').onclick = function () { open = true; render(); };
       setLive(); return;
     }
     var st = cur(), n = steps().length, name = S.profile && S.profile.name ? S.profile.name : T('Visitor', 'Visitante');
     var done = S.stepIndex >= n;
     var visited = S.visited || [];
-    var h = '<div class="ns-panel"><div class="ns-head">' + dots() + '<b>' + esc(name) + '</b><small>' +
+    var h = '<div class="ns-panel"><div class="ns-head">' + agentDot(28) + '<b>' + esc(name) + '</b><small>' +
       (done ? T('Demo done', 'Demo terminada') : T('Step ', 'Paso ') + (S.stepIndex + 1) + T(' of ', ' de ') + n) +
-      '</small><button class="ns-x" type="button" aria-label="Close">x</button></div><div class="ns-body">';
+      '</small><span class="ns-seg"><button type="button" class="ns-on" data-m="click">Click</button><button type="button" data-m="voice">' + T('Voice', 'Voz') + '</button></span><button class="ns-x" type="button" aria-label="Close">x</button></div><div class="ns-body">';
     if (extra.change) h += '<div class="ns-change">' + esc(extra.change) + '</div>';
     if (extra.reply) h += '<div class="ns-reply">' + esc(extra.reply) + '</div>';
     if (done || !st) {
@@ -163,6 +192,7 @@
     }).join('') + '</ol></div></div>';
     root.innerHTML = h; setLive();
     root.querySelector('.ns-x').onclick = function () { open = false; render(); };
+    root.querySelector('.ns-seg [data-m="voice"]').onclick = function () { setMode('voice'); };
     root.querySelector('.ns-next').onclick = next;
     var tb = root.querySelector('.ns-talk'); if (tb) tb.onclick = toggleTalk;
     root.querySelector('.ns-form').onsubmit = function (e) { e.preventDefault(); var i = root.querySelector('.ns-in'); var v = i.value.trim(); if (v) { i.value = ''; heard(v, 'typed'); } };
@@ -172,6 +202,61 @@
     Array.prototype.forEach.call(root.querySelectorAll('.ns-route li'), function (li) {
       li.onclick = function () { go(+li.getAttribute('data-i'), 'picked from route'); };
     });
+  }
+
+  /* ---------- voice mode: the bot just speaks ---------- */
+  var thinking = false, vPaused = false, vTimer = null, vCap = '';
+  function renderVoice() {
+    var root = el.root;
+    if (!root.querySelector('.ns-voice')) {
+      root.innerHTML = '<div class="ns-voice"><div class="ns-cap"><p class="ns-capt"></p><div class="ns-tapw"></div><div class="ns-vbtns"><button type="button" class="ns-pause"></button><button type="button" class="ns-toclick"></button></div></div><div class="ns-big">' + agentDot(160) + '</div></div>';
+      root.querySelector('.ns-pause').onclick = function () { vPaused ? vResume() : vPause(); };
+      root.querySelector('.ns-toclick').onclick = function () { setMode('click'); };
+    }
+    var st = cur();
+    root.querySelector('.ns-capt').textContent = vCap || (st ? st.say : (S.plan.nextStep || ''));
+    root.querySelector('.ns-tapw').innerHTML = pendingSay ? '<span class="ns-tap">' + T('Tap to continue', 'Toca para seguir') + '</span>' : '';
+    root.querySelector('.ns-pause').textContent = vPaused ? T('Resume', 'Seguir') : T('Pause', 'Pausa');
+    root.querySelector('.ns-toclick').textContent = T('Click mode', 'Modo click');
+    setLive();
+  }
+  function vStop() {
+    clearTimeout(vTimer); vTimer = null; thinking = false;
+    curU = null; pendingSay = null;
+    if (window.speechSynthesis) try { speechSynthesis.cancel(); } catch (e) {}
+    speaking = false; if (rec && listening) try { rec.stop(); } catch (e) {}
+  }
+  function vSpeakCurrent() {
+    var st = cur();
+    if (!st) { say(T('That is the demo. Next step: ', 'Esa es la demo. Siguiente paso: ') + (S.plan.nextStep || '')); return; }
+    var pre = S.stepIndex === 0 && S.plan.opening && !S.openingDone ? S.plan.opening + ' ' : '';
+    if (pre) { S.openingDone = true; save(); }
+    say(pre + st.say);
+  }
+  function vPause() { vPaused = true; vStop(); record({ type: 'voice', text: 'pause', reason: 'voice mode pause' }); render(); }
+  function vResume() { vPaused = false; render(); vSpeakCurrent(); }
+  function setMode(m) {
+    vStop(); vPaused = false; vCap = '';
+    if (talkOn) { talkOn = false; }
+    S.mode = m; save();
+    record({ type: 'mode', text: m, reason: 'demo guide level switch' });
+    if (el.root) el.root.innerHTML = '';
+    if (m === 'click') { open = true; render(); return; }
+    render(); vSpeakCurrent();
+  }
+  /* after each spoken line: listen about 4 s; silence moves on, words go to heard() */
+  function vAfter() {
+    if (!isVoice() || vPaused) return;
+    clearTimeout(vTimer);
+    if (S.stepIndex >= steps().length) return;
+    if (rec) { try { rec.lang = lang() === 'es' ? 'es-ES' : 'en-US'; rec.start(); } catch (e) {} }
+    else { listening = true; setLive(); }
+    vTimer = setTimeout(function () {
+      if (!isVoice() || vPaused || speaking) return;
+      if (rec) try { rec.stop(); } catch (e) {}
+      listening = false; thinking = true; setLive();
+      vTimer = setTimeout(function () { thinking = false; setLive(); if (isVoice() && !vPaused) next(); }, 500);
+    }, 4200);
   }
 
   /* ---------- recommendations (memory /api/recommend) ---------- */
@@ -234,19 +319,22 @@
 
   /* ---------- voice ---------- */
   function say(text) {
+    if (isVoice() && text) { vCap = text; clearTimeout(vTimer); if (rec && listening) try { rec.stop(); } catch (e) {} render(); }
+    if (text && isVoice() && !window.speechSynthesis) { vTimer = setTimeout(vAfter, Math.min(12000, 1500 + text.length * 55)); return; }
     if (!text || !window.speechSynthesis) return;
     try {
       speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text);
       u.lang = lang() === 'es' ? 'es-ES' : 'en-US';
-      u.onstart = function () { speaking = true; setLive(); };
-      u.onend = function () { speaking = false; setLive(); if (talkOn) listen(); };
-      u.onerror = function (e) { speaking = false; setLive(); if (e && e.error === 'not-allowed') pendingSay = text; else if (talkOn) listen(); };
+      curU = u;
+      u.onstart = function () { if (u !== curU) return; speaking = true; setLive(); };
+      u.onend = function () { if (u !== curU) return; speaking = false; setLive(); if (talkOn) listen(); if (isVoice()) vAfter(); };
+      u.onerror = function (e) { if (u !== curU) return; speaking = false; setLive(); if (e && e.error === 'not-allowed') { pendingSay = text; if (isVoice()) render(); } else if (talkOn) listen(); else if (isVoice() && e && e.error !== 'interrupted' && e.error !== 'canceled') vAfter(); };
       speechSynthesis.speak(u);
     } catch (e) {}
   }
   /* Chrome blocks speech on a fresh page until the visitor interacts: replay the line on the first click or key. */
-  var pendingSay = null;
+  var pendingSay = null, curU = null;
   function flushSay() { if (pendingSay) { var t = pendingSay; pendingSay = null; say(t); } }
   document.addEventListener('pointerdown', flushSay, true);
   document.addEventListener('keydown', flushSay, true);
@@ -255,9 +343,9 @@
     if (!R) return null;
     var r = new R(); r.continuous = false; r.interimResults = false;
     r.onstart = function () { listening = true; setLive(); };
-    r.onend = function () { listening = false; setLive(); if (talkOn && !speaking) setTimeout(listen, 250); };
+    r.onend = function () { listening = false; setLive(); if (talkOn && !speaking && !isVoice()) setTimeout(listen, 250); };
     r.onerror = function (e) { if (e.error === 'not-allowed') { talkOn = false; render(); } };
-    r.onresult = function (e) { var t = e.results[0][0].transcript; if (t) heard(t, 'voice'); };
+    r.onresult = function (e) { var t = e.results[0][0].transcript; if (t) { if (isVoice()) { clearTimeout(vTimer); if (vPaused) return; } heard(t, 'voice'); } };
     return r;
   }
   function listen() { if (!rec || !talkOn || listening || speaking) return; try { rec.lang = lang() === 'es' ? 'es-ES' : 'en-US'; rec.start(); } catch (e) {} }
@@ -293,6 +381,7 @@
     var st = cur(); el.extra = el.extra || {};
     if (!st) { render(); return; }
     S.visited = S.visited || []; if (S.visited.indexOf(st.id) < 0) S.visited.push(st.id); save();
+    if (isVoice()) { vCap = ''; render(); highlight(st); if (!vPaused) setTimeout(function () { if (isVoice() && !vPaused) vSpeakCurrent(); }, 400); return; }
     open = true; render();
     highlight(st);
     var pre = S.stepIndex === 0 && S.plan.opening && !S.openingDone ? S.plan.opening + ' ' : '';
