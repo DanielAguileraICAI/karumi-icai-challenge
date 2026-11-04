@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Nextstep · a demo plan for every visitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--pink:#FFDFF3;--ink:#161515;--lav:#D8D0E8;--sand:#F2EAD9;--white:#fff;--pulse:#D9F56A;--muted:rgba(22,21,21,.62);--rule:rgba(22,21,21,.18);--r:4px}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Schibsted Grotesk",system-ui,sans-serif;color:var(--ink);background:var(--white);font-size:16px;line-height:1.45}
+  a{color:inherit}
+  .wrap{max-width:1240px;margin:0 auto;padding:0 32px}
+  header.top{background:var(--pink);border-bottom:1px solid var(--rule)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .brand{font-weight:800;letter-spacing:-.02em;font-size:20px}
+  .brand span{display:inline-block;width:10px;height:10px;background:var(--ink);border-radius:2px;margin-right:8px;transform:rotate(45deg)}
+  .hero{background:var(--pink);padding:56px 0 48px}
+  .hero h1{font-size:64px;line-height:1;letter-spacing:-.035em;margin:0 0 18px;max-width:900px;font-weight:800}
+  .hero p{font-size:20px;max-width:720px;margin:0;color:var(--ink)}
+  .eyebrow{font-size:13px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;margin-bottom:14px}
+  .tool{padding:36px 0 24px}
+  .grid{display:grid;grid-template-columns:420px 1fr;gap:32px;align-items:start}
+  .panel{border:1px solid var(--rule);border-radius:var(--r);padding:20px}
+  label{display:block;font-size:13px;font-weight:700;margin:0 0 6px}
+  input,select{font:inherit;width:100%;padding:10px 12px;border:1px solid var(--ink);border-radius:var(--r);background:#fff}
+  .row{display:flex;gap:8px}
+  .btn{font:inherit;font-weight:700;border:1px solid var(--ink);background:var(--ink);color:var(--pink);padding:11px 16px;border-radius:var(--r);cursor:pointer;white-space:nowrap}
+  .btn.ghost{background:transparent;color:var(--ink)}
+  .btn:hover{opacity:.88}
+  .found{font-size:14px;color:var(--muted);margin:10px 0 0}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .chip{font-size:12px;border:1px solid var(--rule);border-radius:var(--r);padding:3px 8px;background:#fff}
+  .chip.k{background:var(--lav);border-color:transparent}
+  .chip.w{background:var(--pulse);border-color:transparent}
+  h2{font-size:28px;letter-spacing:-.02em;margin:0 0 14px}
+  h3{font-size:15px;margin:22px 0 10px;text-transform:uppercase;letter-spacing:.06em}
+  .people{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .person{border:1px solid var(--rule);border-radius:var(--r);padding:10px 12px;cursor:pointer;background:#fff;text-align:left;font:inherit}
+  .person b{display:block;font-size:15px}
+  .person small{color:var(--muted);font-size:12.5px}
+  .person.on{background:var(--ink);color:var(--pink);border-color:var(--ink)}
+  .person.on small{color:var(--pink);opacity:.8}
+  .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+  .actions{display:flex;gap:8px;margin-top:16px}
+  .empty{border:1px dashed var(--rule);border-radius:var(--r);padding:48px;color:var(--muted);text-align:center}
+  .opening{font-size:26px;line-height:1.2;letter-spacing:-.015em;font-weight:700;margin:0 0 18px}
+  .bar{display:flex;height:34px;border:1px solid var(--ink);border-radius:var(--r);overflow:hidden;margin-bottom:6px}
+  .bar div{border-right:1px solid var(--ink);font-size:11.5px;font-weight:700;padding:0 6px;display:flex;align-items:center;overflow:hidden;white-space:nowrap}
+  .bar div:last-child{border-right:0}
+  .bar .hook{background:var(--pulse)} .bar .core{background:var(--pink)} .bar .close{background:var(--lav)} .bar .edge{background:var(--sand)}
+  .barnote{font-size:12.5px;color:var(--muted);margin-bottom:20px}
+  .step{display:grid;grid-template-columns:54px 1fr auto;gap:14px;border-top:1px solid var(--rule);padding:14px 0}
+  .step .n{font-size:28px;font-weight:800;letter-spacing:-.03em}
+  .step .t{font-size:12.5px;color:var(--muted)}
+  .step .name{font-weight:700;font-size:18px}
+  .step .say{margin:6px 0;font-size:15px}
+  .step .check{font-size:14px;font-style:italic;margin-top:4px}
+  .score{font-size:12px;border:1px solid var(--ink);border-radius:var(--r);padding:2px 6px;height:fit-content}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px}
+  ul.clean{list-style:none;padding:0;margin:0}
+  ul.clean li{border-top:1px solid var(--rule);padding:8px 0;font-size:15px}
+  ul.clean li small{color:var(--muted);display:block}
+  .next{background:var(--ink);color:var(--pink);border-radius:var(--r);padding:20px 22px;margin-top:22px}
+  .next .eyebrow{margin-bottom:6px}
+  .next p{font-size:22px;font-weight:700;margin:0;letter-spacing:-.01em}
+  .compare{background:var(--lav);padding:40px 0;margin-top:32px}
+  table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--r);overflow:hidden}
+  th,td{border:1px solid var(--rule);padding:10px;vertical-align:top;font-size:13.5px;text-align:left}
+  th{background:var(--ink);color:var(--lav);font-weight:700}
+  td.hookc{background:var(--pulse);font-weight:700}
+  td small{color:var(--muted);display:block}
+  footer{padding:28px 0;color:var(--muted);font-size:13px}
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="brand"><span></span>Nextstep</div>
+  <div style="font-size:14px">Demo plans for AI demo agents</div>
+</div></header>
+
+<section class="hero"><div class="wrap">
+  <div class="eyebrow">What does it show first</div>
+  <h1>Every visitor gets their own demo</h1>
+  <p>Point it at a product, pick who is watching, and it plans the first three minutes: which screen first, what to say, and why it matters to this person</p>
+</div></section>
+
+<section class="tool"><div class="wrap grid">
+  <div class="panel">
+    <label for="url">1 · Product</label>
+    <div class="row">
+      <input id="url" value="../client-site/">
+      <button class="btn ghost" id="load">Read</button>
+    </div>
+    <div class="found" id="found">Reading the product…</div>
+    <div class="chips" id="modules"></div>
+
+    <h3>2 · Who is watching</h3>
+    <div class="people" id="people"></div>
+    <div class="fields">
+      <div><label>Role</label><select id="role"><option value="finance">Finance</option><option value="hr">HR</option><option value="manager">Manager</option><option value="it">IT</option><option value="exec">Executive</option><option value="employee">Employee</option></select></div>
+      <div><label>Power to decide</label><select id="decision"><option value="decider">Decides</option><option value="influencer">Influences</option><option value="user">Will use it</option><option value="researcher">Researches for someone</option></select></div>
+      <div><label>Knowledge</label><select id="knowledge"><option value="novice">New to this</option><option value="familiar">Knows the field</option><option value="expert">Expert</option></select></div>
+      <div><label>One thing on their mind</label><select id="concern"><option value="cost">Cost</option><option value="compliance">Compliance</option><option value="ease">Ease of use</option><option value="security">Security</option><option value="speed">Speed</option><option value="insight">Insight</option><option value="integration">Integrations</option></select></div>
+      <div><label>Buying stage</label><select id="stage"><option value="exploring">Exploring</option><option value="comparing">Comparing</option><option value="deciding">Deciding</option></select></div>
+      <div><label>Minutes</label><select id="minutes"><option>2</option><option selected>3</option><option>5</option></select></div>
+    </div>
+    <div class="actions">
+      <button class="btn" id="go">Plan the demo</button>
+      <button class="btn ghost" id="all">Compare everyone</button>
+    </div>
+  </div>
+
+  <div id="out"><div class="empty">Pick a person and press Plan the demo</div></div>
+</div></section>
+
+<section class="compare" id="compare" hidden><div class="wrap">
+  <div class="eyebrow">Six visitors, six demos</div>
+  <h2>Same product, a different first three minutes for each person</h2>
+  <div id="table"></div>
+</div></section>
+
+<footer><div class="wrap">Karumi × Comillas hackathon · Track 2 · all people and companies are invented</div></footer>
+
+<script type="module">
+import { planDemo } from "./engine.js";
+const $ = s => document.querySelector(s);
+let schema = null, profiles = [], current = null;
+const fields = ["role","decision","knowledge","concern","stage","minutes"];
+const fmt = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
+const base = () => { const u = $("#url").value.trim(); return u.endsWith("/") ? u : u + "/"; };
+
+async function loadProduct(){
+  $("#found").textContent = "Reading the product…";
+  try {
+    const r = await fetch(base() + "features.json"); schema = await r.json();
+    const mods = [...new Set(schema.features.map(f => f.module))];
+    $("#found").innerHTML = `<b>${schema.product}</b> · ${schema.category} · ${schema.features.length} features in ${mods.length} modules`;
+    $("#modules").innerHTML = mods.map(m => `<span class="chip">${m}</span>`).join("");
+  } catch(e){ $("#found").textContent = "Could not read features.json at that address"; schema = null; }
+}
+function pick(p){
+  current = {...p};
+  fields.forEach(k => $("#"+k).value = String(p[k]));
+  document.querySelectorAll(".person").forEach(b => b.classList.toggle("on", b.dataset.id === p.id));
+}
+function readProfile(){
+  const p = {...current}; fields.forEach(k => p[k] = $("#"+k).value); p.minutes = Number(p.minutes); return p;
+}
+function render(p){
+  if(!schema) return;
+  const plan = planDemo(schema, p);
+  const total = plan.budgetSeconds;
+  const seg = (cls, label, s) => `<div class="${cls}" style="flex:${s}" title="${label} · ${s}s">${label}</div>`;
+  $("#out").innerHTML = `
+    <div class="eyebrow">Demo plan for ${p.name} · ${p.title}, ${p.company}</div>
+    <p class="opening">“${plan.opening}”</p>
+    <div class="bar">${seg("edge","Hello",15)}${plan.steps.map(s => seg(s.role, s.name, s.seconds)).join("")}${seg("edge","Next step",15)}</div>
+    <div class="barnote">${fmt(plan.totalSeconds)} planned out of ${fmt(total)} · green is the hook, lavender the close</div>
+    ${plan.steps.map(s => `
+      <div class="step">
+        <div class="n">${s.n}</div>
+        <div>
+          <div class="t">${fmt(s.start)} · ${s.seconds}s · ${s.module}${s.role==="hook"?" · hook":""}</div>
+          <div class="name"><a href="${base()+s.screen}" target="_blank">${s.name}</a></div>
+          <div class="say">${s.say}</div>
+          <div class="chips">${s.why.map(w => `<span class="chip k">${w}</span>`).join("")}</div>
+          ${s.check ? `<div class="check">Ask: ${s.check}</div>` : ""}
+        </div>
+        <div class="score">score ${s.score}</div>
+      </div>`).join("")}
+    <div class="cols">
+      <div><h3>What they must leave knowing</h3><ul class="clean">${plan.mustKnow.map(m => `<li>${m}</li>`).join("")}</ul></div>
+      <div><h3>Left out, and why</h3><ul class="clean">${plan.leftOut.slice(0,7).map(l => `<li>${l.name}<small>${l.why}</small></li>`).join("")}</ul></div>
+    </div>
+    <div class="next"><div class="eyebrow">Next step to offer</div><p>${plan.nextStep}</p></div>`;
+}
+function compareAll(){
+  if(!schema) return;
+  const rows = profiles.map(p => ({p, plan: planDemo(schema, p)}));
+  const maxSteps = Math.max(...rows.map(r => r.plan.steps.length));
+  $("#table").innerHTML = `<table><tr><th>Visitor</th>${Array.from({length:maxSteps},(_,i)=>`<th>${i+1}</th>`).join("")}<th>Next step</th></tr>
+    ${rows.map(({p,plan}) => `<tr><td><b>${p.name}</b><small>${p.title} · ${p.decision} · ${p.knowledge} · ${p.concern}</small></td>
+      ${Array.from({length:maxSteps},(_,i)=>{const s=plan.steps[i]; return s?`<td class="${s.role==="hook"?"hookc":""}">${s.name}<small>${s.why[0]||""}</small></td>`:"<td></td>";}).join("")}
+      <td>${plan.nextStep}</td></tr>`).join("")}</table>`;
+  $("#compare").hidden = false;
+  $("#compare").scrollIntoView({behavior:"smooth"});
+}
+
+profiles = await (await fetch("../data/profiles.json")).json();
+$("#people").innerHTML = profiles.map(p => `<button class="person" data-id="${p.id}"><b>${p.name}</b><small>${p.title} · ${p.company}</small></button>`).join("");
+document.querySelectorAll(".person").forEach(b => b.onclick = () => { pick(profiles.find(p => p.id === b.dataset.id)); render(readProfile()); });
+fields.forEach(k => $("#"+k).onchange = () => render(readProfile()));
+$("#load").onclick = loadProduct;
+$("#go").onclick = () => render(readProfile());
+$("#all").onclick = compareAll;
+pick(profiles[0]);
+await loadProduct();
+render(readProfile());
+</script>
+</body>
+</html>
