@@ -328,13 +328,65 @@
     return 'You are the live demo guide for the product shown on screen (Kestrel). You talk with a ' + (pr.title || pr.role || 'visitor') + (pr.company ? ' from ' + pr.company : '') + (pr.sector ? ' (' + pr.sector + ')' : '') + '.\n' +
       'Speak ' + (lang() === 'es' ? 'Spanish from Spain' : 'English') + '. Be brief: max 2 short sentences, then a short question.\n' +
       'The principle: what to show FIRST is recalculated after everything the visitor says.\n' +
-      'Rules: if what the visitor says is better answered by another feature than the current one, call show_feature with its id (do not just describe it). If they want to continue, call next_step. If the current screen already answers, explain it using its facts. Never invent features, prices or numbers that are not listed.\n' +
+      'Rules: if what the visitor says is better answered by another feature than the current one, call show_feature with its id (do not just describe it). If they want to continue, call next_step. If the current screen already answers, call read_screen and explain it using what is really on screen; use point_at to show where. To demo an action, use click or type_into (never click delete, send, pay or save buttons). Never invent features, prices or numbers that are not listed.\n' +
       'Features:\n' + feats + '\nCurrent plan (>> is on screen now):\n' + plan + (st ? '\nOn screen now: ' + st.name + ': ' + (st.say || '') : '') + (hist ? '\nConversation so far:\n' + hist : '');
   }
   var RT_TOOLS = [
     { type: 'function', name: 'show_feature', description: 'Change the plan and take the visitor to the screen of this feature now.', parameters: { type: 'object', properties: { feature_id: { type: 'string' }, reason: { type: 'string', description: 'short reason, in the visitor language' } }, required: ['feature_id'] } },
-    { type: 'function', name: 'next_step', description: 'Go to the next step of the plan.', parameters: { type: 'object', properties: {} } }
+    { type: 'function', name: 'next_step', description: 'Go to the next step of the plan.', parameters: { type: 'object', properties: {} } },
+    { type: 'function', name: 'read_screen', description: 'Read what is visible on the current screen (headings, numbers, buttons, fields). Use it before explaining details or when asked about something on screen.', parameters: { type: 'object', properties: {} } },
+    { type: 'function', name: 'click', description: 'Click a button, tab or link on the current screen, by its visible text. Use it to demo an action live.', parameters: { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] } },
+    { type: 'function', name: 'type_into', description: 'Type a value into an input field on screen, found by its label or placeholder.', parameters: { type: 'object', properties: { field: { type: 'string' }, value: { type: 'string' } }, required: ['field', 'value'] } },
+    { type: 'function', name: 'point_at', description: 'Scroll to and highlight a piece of text on screen to point at what you are talking about.', parameters: { type: 'object', properties: { text: { type: 'string' } }, required: ['text'] } }
   ];
+  /* ---------- screen: read / click / type / point (same page, direct DOM) ---------- */
+  function onScreen(n) { return n && !(el.root && el.root.contains(n)) && n.offsetParent !== null; }
+  function readScreen() {
+    var out = [], seen = {};
+    document.querySelectorAll('h1,h2,h3,h4,p,li,td,th,label,button,a,[role=tab],input,select,textarea,.kpi,.stat,.value').forEach(function (n) {
+      if (!onScreen(n) || n.closest('nav,aside,header,[role=navigation]')) return;
+      var t = (n.tagName === 'INPUT' || n.tagName === 'TEXTAREA') ? '[field ' + (n.getAttribute('aria-label') || n.placeholder || n.name || '') + '=' + (n.value || '') + ']' : (n.innerText || '').replace(/\s+/g, ' ').trim();
+      if (!t || t.length > 200 || seen[t]) return; seen[t] = 1;
+      out.push((/^(BUTTON|A)$/.test(n.tagName) || n.getAttribute('role') === 'tab' ? '[button] ' : '') + t);
+    });
+    return { title: document.title, path: location.pathname, content: out.join('\n').slice(0, 3500), menu: 'other screens are reachable with show_feature' };
+  }
+  function findByText(text, sel) {
+    var q = norm(text).trim(), best = null, bl = 1e9;
+    document.querySelectorAll(sel).forEach(function (n) {
+      if (!onScreen(n)) return;
+      var t = norm(n.innerText || n.value || n.getAttribute('aria-label') || n.placeholder || '');
+      if (t && t.indexOf(q) >= 0 && t.length < bl) { best = n; bl = t.length; }
+    });
+    return best;
+  }
+  window.__nsScreen = function (n, a) { return screenTool(n, a || {}); };
+  function flash(n) { try { n.scrollIntoView({ behavior: 'smooth', block: 'center' }); var o = n.style.outline; n.style.outline = '3px solid #ff3b30'; n.style.outlineOffset = '3px'; setTimeout(function () { n.style.outline = o; }, 2500); } catch (e) {} }
+  function screenTool(name, args) {
+    if (name === 'read_screen') return readScreen();
+    if (name === 'point_at') { var n = findByText(args.text || '', 'h1,h2,h3,h4,p,li,td,th,label,button,a,span,div'); if (!n) return { ok: false, error: 'not on screen' }; flash(n); record({ type: 'highlight', role: 'agent', text: args.text, source: 'widget-llm' }); return { ok: true }; }
+    if (name === 'click') {
+      var b = findByText(args.text || '', 'button,a,[role=tab],[role=button],input[type=submit],summary,label');
+      if (!b) return { ok: false, error: 'no button with that text', screen: readScreen().content.slice(0, 800) };
+      flash(b); record({ type: 'click', role: 'agent', text: args.text, source: 'widget-llm' });
+      setTimeout(function () { b.click(); }, 500);
+      return { ok: true, clicked: (b.innerText || args.text).slice(0, 80), note: 'call read_screen to see the result' };
+    }
+    if (name === 'type_into') {
+      var f = null, q = norm(args.field || '');
+      document.querySelectorAll('input,textarea').forEach(function (n) {
+        if (f || !onScreen(n)) return;
+        var lab = n.id && document.querySelector('label[for="' + n.id + '"]');
+        var t = norm([n.getAttribute('aria-label'), n.placeholder, n.name, lab && lab.innerText].join(' '));
+        if (t.indexOf(q) >= 0) f = n;
+      });
+      if (!f) return { ok: false, error: 'no field like that' };
+      flash(f); f.focus(); f.value = args.value; f.dispatchEvent(new Event('input', { bubbles: true })); f.dispatchEvent(new Event('change', { bubbles: true }));
+      record({ type: 'type', role: 'agent', text: args.field + '=' + args.value, source: 'widget-llm' });
+      return { ok: true };
+    }
+    return null;
+  }
   function hist(r, t) { S.rtHist = (S.rtHist || []).concat([{ r: r, t: String(t).slice(0, 300) }]).slice(-12); save(); }
   function rtSpeak(text) {
     // Narration of a newly opened screen: the model presents it in its own words.
@@ -343,6 +395,8 @@
   }
   function rtTool(name, args, callId) {
     var out = { ok: true };
+    var sc = screenTool(name, args);
+    if (sc) { RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(sc) } }); RT.send({ type: 'response.create' }); return; }
     if (name === 'show_feature') {
       var f = (S.features || []).filter(function (x) { return x.id === args.feature_id; })[0];
       if (!f) out = { ok: false, error: 'unknown feature id' };
