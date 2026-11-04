@@ -234,7 +234,7 @@
   function placeDot(t) {
     if (t) dotTarget = t;
     var big = el.root && el.root.querySelector('.ns-big'); if (!big) return;
-    var d = D(), n = dotTarget && d.contains(dotTarget) ? dotTarget : (d.querySelector('.ns-tint') || d.querySelector('main h1, main h2') || null);
+    var d = (FRAME && FRAME.contentDocument && FRAME.contentDocument.body) ? FRAME.contentDocument : document, n = dotTarget && d.contains(dotTarget) ? dotTarget : (d.querySelector('.ns-tint') || d.querySelector('main h1, main h2') || null);
     var W = window.innerWidth, H = window.innerHeight, D = 96, x, y, lookRight = false;
     if (!n) { x = W - D - 34; y = H - D - 34; }
     else {
