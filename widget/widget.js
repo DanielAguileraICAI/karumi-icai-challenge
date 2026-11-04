@@ -1,5 +1,6 @@
 /* Demo guide widget: in-page voice demo agent. Plain browser JS, no deps. */
 (function () {
+  try { if (window.top !== window && window.top.__nsWidget) return; } catch (e) {}
   if (window.__nsWidget) return; window.__nsWidget = true;
   var KEY = 'nextstep.live';
   var SYN = [
@@ -143,6 +144,7 @@
     css();
     var root = document.createElement('div'); root.className = 'ns-root'; el.root = root;
     document.body.appendChild(root); render();
+    root.addEventListener('pointerenter', function () { if (!RT && window.RTCPeerConnection) preloadToken().catch(function () {}); });
   }
   function setLive() {
     var r = el.root; if (!r) return;
@@ -233,20 +235,27 @@
     if (pre) { S.openingDone = true; save(); }
     say(pre + st.say);
   }
-  function vPause() { vPaused = true; vStop(); record({ type: 'voice', text: 'pause', reason: 'voice mode pause' }); render(); }
-  function vResume() { vPaused = false; render(); vSpeakCurrent(); }
+  function vPause() { if (RT) { RT.send({ type: 'response.cancel' }); RT.send({ type: 'output_audio_buffer.clear' }); try { RT.mic.getTracks()[0].enabled = false; } catch (e) {} } vPaused = true; vStop(); record({ type: 'voice', text: 'pause', reason: 'voice mode pause' }); render(); }
+  function vResume() { if (RT) try { RT.mic.getTracks()[0].enabled = true; } catch (e) {} vPaused = false; render(); vSpeakCurrent(); }
   function setMode(m) {
+    if (m === 'click' && RT) { S.rtOn = false; save(); stopRT(); }
     vStop(); vPaused = false; vCap = '';
     if (talkOn) { talkOn = false; }
     S.mode = m; save();
     record({ type: 'mode', text: m, reason: 'demo guide level switch' });
     if (el.root) el.root.innerHTML = '';
     if (m === 'click') { open = true; render(); return; }
+    if (window.RTCPeerConnection && !RT) {
+      S.rtOn = true; save(); render(); vSpeakCurrent();
+      startRT().then(function () { record({ type: 'mic', role: 'agent', text: 'openai realtime on (voice mode)', reason: 'voice' }); })
+        .catch(function (e) { console.warn('[realtime] fallback to browser voice:', e && e.message); S.rtOn = false; save(); rtQueue = []; vSpeakCurrent(); });
+      return;
+    }
     render(); vSpeakCurrent();
   }
   /* after each spoken line: listen about 4 s; silence moves on, words go to heard() */
   function vAfter() {
-    if (!isVoice() || vPaused) return;
+    if (!isVoice() || vPaused || RT || (S && S.rtOn)) return;
     clearTimeout(vTimer);
     if (S.stepIndex >= steps().length) return;
     if (rec) { try { rec.lang = lang() === 'es' ? 'es-ES' : 'en-US'; rec.start(); } catch (e) {} }
@@ -317,6 +326,21 @@
     return null;
   }
 
+  /* ---------- in-call frame: navigating never cuts the call (idea from Kali) ---------- */
+  var FRAME = null;
+  function D() { try { return FRAME && FRAME.contentDocument && FRAME.contentDocument.body ? FRAME.contentDocument : document; } catch (e) { return document; } }
+  function frameGo(url, after) {
+    if (!FRAME) {
+      FRAME = document.createElement('iframe'); FRAME.className = 'ns-frame';
+      FRAME.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;border:0;z-index:2147483000;background:#fff';
+      document.body.appendChild(FRAME);
+      if (el.root) { el.root.style.zIndex = '2147483600'; document.body.appendChild(el.root); }
+    }
+    FRAME.onload = function () { rtLog('frame', url); try { after && after(); } catch (e) { console.warn(e); } };
+    FRAME.src = url;
+  }
+  function closeFrame() { if (!FRAME) return; var u = null; try { u = FRAME.contentWindow.location.href; } catch (e) {} FRAME.remove(); FRAME = null; if (u && u !== location.href) location.href = u; }
+
   /* ---------- OpenAI Realtime voice: the model is the live brain (tools drive the demo) ---------- */
   var RT = null, rtQueue = [], DBG = /rtdebug/.test(location.search) || localStorage.getItem('nextstep.rtdebug');
   function rtLog() { if (DBG) console.log.apply(console, ['[realtime]'].concat([].slice.call(arguments))); }
@@ -343,24 +367,24 @@
   function onScreen(n) { return n && !(el.root && el.root.contains(n)) && n.offsetParent !== null; }
   function readScreen() {
     var out = [], seen = {};
-    document.querySelectorAll('h1,h2,h3,h4,p,li,td,th,label,button,a,[role=tab],input,select,textarea,.kpi,.stat,.value').forEach(function (n) {
+    D().querySelectorAll('h1,h2,h3,h4,p,li,td,th,label,button,a,[role=tab],input,select,textarea,.kpi,.stat,.value').forEach(function (n) {
       if (!onScreen(n) || n.closest('nav,aside,header,[role=navigation]')) return;
       var t = (n.tagName === 'INPUT' || n.tagName === 'TEXTAREA') ? '[field ' + (n.getAttribute('aria-label') || n.placeholder || n.name || '') + '=' + (n.value || '') + ']' : (n.innerText || '').replace(/\s+/g, ' ').trim();
       if (!t || t.length > 200 || seen[t]) return; seen[t] = 1;
       out.push((/^(BUTTON|A)$/.test(n.tagName) || n.getAttribute('role') === 'tab' ? '[button] ' : '') + t);
     });
-    return { title: document.title, path: location.pathname, content: out.join('\n').slice(0, 3500), menu: 'other screens are reachable with show_feature' };
+    return { title: D().title, path: (D().location || location).pathname, content: out.join('\n').slice(0, 3500), menu: 'other screens are reachable with show_feature' };
   }
   function findByText(text, sel) {
     var q = norm(text).trim(), best = null, bl = 1e9;
-    document.querySelectorAll(sel).forEach(function (n) {
+    D().querySelectorAll(sel).forEach(function (n) {
       if (!onScreen(n)) return;
       var t = norm(n.innerText || n.value || n.getAttribute('aria-label') || n.placeholder || '');
       if (t && t.indexOf(q) >= 0 && t.length < bl) { best = n; bl = t.length; }
     });
     return best;
   }
-  window.__nsScreen = function (n, a) { return screenTool(n, a || {}); };
+  if (DBG) window.__nsDebug = { screen: function (n, x) { return screenTool(n, x || {}); }, fakeRT: function () { RT = { ready: true, sent: [], send: function (o) { this.sent.push(o.type); }, mic: { getTracks: function () { return []; } }, pc: { close: function () {} } }; return RT; }, go: function (i) { go(i, 'test'); }, tool: function (n, x) { rtToolGuarded(n, x || {}, 'c1'); }, rt: function () { return RT; }, steps: function () { return steps().map(function (s) { return s.id; }); } };
   function flash(n) { try { n.scrollIntoView({ behavior: 'smooth', block: 'center' }); var o = n.style.outline; n.style.outline = '3px solid #ff3b30'; n.style.outlineOffset = '3px'; setTimeout(function () { n.style.outline = o; }, 2500); } catch (e) {} }
   function screenTool(name, args) {
     if (name === 'read_screen') return readScreen();
@@ -374,14 +398,14 @@
     }
     if (name === 'type_into') {
       var f = null, q = norm(args.field || '');
-      document.querySelectorAll('input,textarea').forEach(function (n) {
+      D().querySelectorAll('input,textarea').forEach(function (n) {
         if (f || !onScreen(n)) return;
-        var lab = n.id && document.querySelector('label[for="' + n.id + '"]');
+        var lab = n.id && D().querySelector('label[for="' + n.id + '"]');
         var t = norm([n.getAttribute('aria-label'), n.placeholder, n.name, lab && lab.innerText].join(' '));
         if (t.indexOf(q) >= 0) f = n;
       });
       if (!f) return { ok: false, error: 'no field like that' };
-      flash(f); f.focus(); f.value = args.value; f.dispatchEvent(new Event('input', { bubbles: true })); f.dispatchEvent(new Event('change', { bubbles: true }));
+      flash(f); f.focus(); f.value = args.value; var W = D().defaultView || window; f.dispatchEvent(new W.Event('input', { bubbles: true })); f.dispatchEvent(new W.Event('change', { bubbles: true }));
       record({ type: 'type', role: 'agent', text: args.field + '=' + args.value, source: 'widget-llm' });
       return { ok: true };
     }
@@ -393,6 +417,22 @@
     if (!RT || !RT.ready) { rtQueue.push(text); return; }
     RT.send({ type: 'response.create', response: { instructions: 'The screen just changed. Present it briefly, in your own words, based on: ' + text + '. Then ask one short question.' } });
   }
+  // Margin before acting (Kali): actions wait a moment; if the visitor keeps talking, they are dropped silently.
+  var GRACE_MS = 1200, ACTS = { show_feature: 1, next_step: 1, click: 1, type_into: 1 }, spokeAt = 0;
+  function rtToolGuarded(name, args, callId) {
+    if (!ACTS[name]) return rtTool(name, args, callId);
+    var asked = Date.now();
+    setTimeout(function () {
+      if (!RT) return;
+      if (spokeAt > asked) {
+        rtLog('held', name, 'visitor kept talking');
+        RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: JSON.stringify({ ok: false, held: 'the visitor kept talking, so this was not done; follow what they say now' }) } });
+        return;
+      }
+      rtTool(name, args, callId);
+    }, GRACE_MS);
+  }
+  var STOP_RE = /^(para|parar|stop|espera|calla|cállate|callate|silencio|wait|hold on)\b/i;
   function rtTool(name, args, callId) {
     var out = { ok: true };
     var sc = screenTool(name, args);
@@ -421,8 +461,16 @@
     RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(out) } });
     RT.send({ type: 'response.create' });
   }
+  var PRE = null;
+  function preloadToken() {
+    if (PRE && Date.now() - PRE.at < 40000) return PRE.p;
+    var p = fetch('/api/session', { method: 'POST' }).then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || r.status); }); });
+    PRE = { at: Date.now(), p: p }; p.catch(function () { PRE = null; });
+    return p;
+  }
   function startRT() {
-    return fetch('/api/session', { method: 'POST' }).then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || r.status); }); }).then(function (j) {
+    var pre = preloadToken(); PRE = null;
+    return pre.then(function (j) {
       var pc = new RTCPeerConnection(), audio = new Audio(); audio.autoplay = true;
       document.addEventListener('pointerdown', function () { try { audio.play(); } catch (e) {} }, true);
       pc.ontrack = function (e) { audio.srcObject = e.streams[0]; };
@@ -440,15 +488,16 @@
         rtLog('<<', m.type, m.type === 'error' ? m.error : '');
         if (m.type === 'conversation.item.input_audio_transcription.completed' && m.transcript && m.transcript.trim()) {
           var t = m.transcript.trim(); hist('visitor', t);
+          if (STOP_RE.test(t)) { rt.send({ type: 'response.cancel' }); rt.send({ type: 'output_audio_buffer.clear' }); rtLog('stop word', t); }
           record({ type: 'utterance', role: 'user', text: t, reason: 'voice', source: 'widget-realtime' });
           el.extra = { reply: '🗣 ' + t }; if (open) render(el.extra);
         }
         if (m.type === 'response.output_audio_transcript.done' && m.transcript) { hist('agent', m.transcript); record({ type: 'reply', role: 'agent', text: m.transcript, source: 'widget-realtime' }); }
         if (m.type === 'response.function_call_arguments.done' && !done[m.call_id]) {
           done[m.call_id] = 1; var args = {}; try { args = JSON.parse(m.arguments || '{}'); } catch (e) {}
-          rtLog('tool', m.name, args); rtTool(m.name, args, m.call_id);
+          rtLog('tool', m.name, args); rtToolGuarded(m.name, args, m.call_id);
         }
-        if (m.type === 'input_audio_buffer.speech_started') { listening = true; setLive(); }
+        if (m.type === 'input_audio_buffer.speech_started') { listening = true; spokeAt = Date.now(); setLive(); }
         if (m.type === 'input_audio_buffer.speech_stopped') { listening = false; setLive(); }
         if (m.type === 'output_audio_buffer.started') { speaking = true; setLive(); }
         if (m.type === 'output_audio_buffer.stopped') { speaking = false; setLive(); }
@@ -465,7 +514,7 @@
         .then(function () { RT = rt; console.info('[realtime] connected (OpenAI). Debug: add ?rtdebug=1'); return rt; });
     });
   }
-  function stopRT() { if (!RT) return; try { RT.mic.getTracks().forEach(function (t) { t.stop(); }); RT.pc.close(); } catch (e) {} RT = null; }
+  function stopRT() { closeFrame(); if (!RT) return; try { RT.mic.getTracks().forEach(function (t) { t.stop(); }); RT.pc.close(); } catch (e) {} RT = null; }
 
   /* ---------- voice ---------- */
   function say(text) {
@@ -516,6 +565,13 @@
   function go(i, reason) {
     var st = steps()[i];
     S.stepIndex = i; save();
+    if (st && RT && RT.ready) {
+      record({ type: 'navigate', text: st.name, page_id: st.id, page_url: location.origin + pathOf(st), reason: reason || 'next in plan', source: 'widget-realtime' });
+      S.visited = S.visited || []; if (S.visited.indexOf(st.id) < 0) S.visited.push(st.id); save();
+      render();
+      frameGo(pathOf(st), function () { highlight(st); rtSpeak(st.say); });
+      return;
+    }
     if (!st) { render({}); var ns = S.plan.nextStep || ''; say(T('That is the demo. Next step: ', 'Esa es la demo. Siguiente paso: ') + ns); record({ type: 'close', text: ns, reason: reason || 'end of plan' }); return; }
     record({ type: 'navigate', text: st.name, page_id: st.id, page_url: location.origin + pathOf(st), reason: reason || 'next in plan' });
     if (pathOf(st) === location.pathname) { arrive(); return; }
@@ -527,7 +583,7 @@
   }
 
   function highlight(st) {
-    var t = (st && document.querySelector('[data-feature="' + st.id + '"]')) || document.querySelector('main') || document.body;
+    var d = D(), t = (st && d.querySelector('[data-feature="' + st.id + '"]')) || d.querySelector('main') || d.body;
     try { t.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (e) {}
     var hd = t.querySelector && t.querySelector('h1, h2, h3');
     t.classList.add('ns-mark'); if (hd) hd.classList.add('ns-tint');
