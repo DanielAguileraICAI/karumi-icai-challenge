@@ -5,7 +5,9 @@ Brief: https://karumi.ai/hackathon
 
 **Track 2: ¿Qué enseña primero?** Un visitante tiene 3 minutos y una sola cosa en la cabeza. Hay que decidir qué merece la pena enseñarle primero, y por qué.
 
-## El proyecto
+## El proyecto: nextfirststep
+
+Enlace: https://karumi-icai-challenge.vercel.app
 
 Un motor de recomendaciones de demo. A partir del perfil del cliente y del producto, genera un primer plan para la demo.
 
