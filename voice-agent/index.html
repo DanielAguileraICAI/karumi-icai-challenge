@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Karumi Live Demo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <div class="brand"><span class="dot"></span> Live Demo Agent <small>"first" cambia con cada frase</small></div>
+  <form id="urlForm">
+    <input id="url" placeholder="https://producto.com" value="">
+    <button>Preparar demo</button>
+  </form>
+</header>
+<main>
+  <section class="stage">
+    <div class="bar"><span id="curTitle">Pega una URL para empezar</span><a id="openTab" target="_blank" rel="noopener">abrir ↗</a></div>
+    <iframe id="frame" title="producto"></iframe>
+  </section>
+  <aside>
+    <div class="controls">
+      <button id="talk" class="talk" disabled>🎙️ Hablar con el agente</button>
+      <div id="mode" class="mode">modo: —</div>
+    </div>
+    <div class="route">
+      <h3>Ruta adaptativa</h3>
+      <ol id="route"></ol>
+    </div>
+    <div id="log" class="log"></div>
+    <form id="say"><input id="sayText" placeholder="o escribe: «¿cuánto cuesta?», «enséñame integraciones»…"><button>↵</button></form>
+    <div class="foot"><button id="export">Exportar recorrido (JSON)</button> <span id="steps">0 pasos</span></div>
+  </aside>
+</main>
+<script type="module" src="app.js"></script>
+</body>
+</html>

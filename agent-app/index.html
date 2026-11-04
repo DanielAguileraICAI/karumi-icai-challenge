@@ -125,7 +125,7 @@
 <footer><div class="wrap">Karumi × Comillas hackathon · Track 2 · all people and companies are invented</div></footer>
 
 <script type="module">
-import { planDemo } from "./engine.js";
+import { planDemo, scoreFeature } from "./engine.js";
 const $ = s => document.querySelector(s);
 let schema = null, profiles = [], current = null;
 const fields = ["role","decision","knowledge","concern","stage","minutes"];
@@ -175,7 +175,16 @@ function render(p){
       <div><h3>What they must leave knowing</h3><ul class="clean">${plan.mustKnow.map(m => `<li>${m}</li>`).join("")}</ul></div>
       <div><h3>Left out, and why</h3><ul class="clean">${plan.leftOut.slice(0,7).map(l => `<li>${l.name}<small>${l.why}</small></li>`).join("")}</ul></div>
     </div>
-    <div class="next"><div class="eyebrow">Next step to offer</div><p>${plan.nextStep}</p></div>`;
+    <div class="next"><div class="eyebrow">Next step to offer</div><p>${plan.nextStep}</p></div>
+    <div class="actions" style="margin-top:16px"><button class="btn" id="live">Start the live demo inside ${schema.product}</button></div>`;
+  $("#live").onclick = () => startLive(p, plan);
+}
+function startLive(p, plan){
+  const features = schema.features.map(f => ({...f, score: scoreFeature(f, p).score}));
+  const live = {profile: p, plan, features, base: base().replace(/^\.\.\//, "/"), stepIndex: 0, journey: []};
+  if (!live.base.startsWith("/") && !live.base.startsWith("http")) live.base = "/" + live.base;
+  localStorage.setItem("nextstep.live", JSON.stringify(live));
+  window.open(live.base + plan.steps[0].screen, "_blank");
 }
 function compareAll(){
   if(!schema) return;

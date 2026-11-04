@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kestrel assistant · Kestrel</title>
+<link rel="stylesheet" href="../assets/kestrel.css">
+<script src="../assets/kestrel.js"></script>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <a class="logo" href="home.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#2450d8"/><path d="M4 15 L12 7 L20 12 L13 11 L9 17 Z" fill="#fff"/></svg>Kestrel</a>
+  <div class="search">&#9906;&nbsp; Search people, reports, tasks, or ask Kestrel…</div>
+  <div class="right"><span>Brisa Logistics S.L.</span><span class="badge">EU · Frankfurt</span><span title="Notifications">&#128276; 3</span><span class="avatar">LF</span></div>
+</header>
+<nav class="sidebar" aria-label="Kestrel modules">
+<div class="group">Workspace</div>
+<a href="home.html"><span class="dot"></span>Home</a>
+<a href="assistant.html"><span class="dot"></span>Assistant</a>
+<div class="group">People</div>
+<a href="people.html"><span class="dot"></span>People</a>
+<a href="timeoff.html"><span class="dot"></span>Time off</a>
+<a href="payroll.html"><span class="dot"></span>Payroll</a>
+<div class="group">Talent</div>
+<a href="recruiting.html"><span class="dot"></span>Recruiting</a>
+<a href="performance.html"><span class="dot"></span>Performance</a>
+<a href="skills.html"><span class="dot"></span>Skills map</a>
+<div class="group">Finance</div>
+<a href="expenses.html"><span class="dot"></span>Expenses</a>
+<a href="close.html"><span class="dot"></span>Financial close</a>
+<a href="planning.html"><span class="dot"></span>Planning</a>
+<a href="analytics.html"><span class="dot"></span>Analytics</a>
+<div class="group">Platform</div>
+<a href="integrations.html"><span class="dot"></span>Integrations</a>
+<a href="security.html"><span class="dot"></span>Security</a>
+<div class="back"><a href="../pricing.html"><span class="dot"></span>Plans &amp; pricing</a><a href="../index.html"><span class="dot"></span>kestrel.example website</a></div>
+</nav>
+<main class="screen" data-feature="assistant">
+  <div class="page-head">
+    <div><div class="crumbs">AI · Answers and does the task, with your permissions</div><h1>Kestrel assistant</h1></div>
+    <div class="actions"><a href="#" class="btn" data-toast="Last 30 conversations">History</a><a href="#" class="btn primary" data-toast="New conversation">New chat</a></div>
+  </div>
+
+<div class="grid g3">
+  <div class="card span2">
+    <div class="chat">
+      <div class="msg me">How many vacation days do I have left, and can I take 21–31 December?</div>
+      <div class="msg">You have <b>14.5 days</b> left. 21–31 Dec is <b>7 working days</b> (25 Dec is a holiday), so you'd keep 7.5 days. Two teammates are off 28–31 Dec, but team coverage stays above 60%.
+        <div class="tool"><b>Draft request</b> · Vacation · 21–31 Dec 2026 · 7 days · approver Carmen Ortiz<div style="margin-top:8px"><a href="#" class="btn primary" data-toast="Sent · Carmen notified">Send request</a> <a href="#" class="btn" data-toast="Pick new dates">Change dates</a></div></div>
+      </div>
+      <div class="msg me">Also: what did the Zaragoza depot spend on overtime last quarter vs budget?</div>
+      <div class="msg">Zaragoza overtime in Q3 was <b>€148,200</b>, <b>23% over</b> the €120,500 budget. 70% of it came from the night shift in August.
+        <div class="tool"><div class="hbars"><div class="row"><span>Jul</span><div class="bar"><i style="width:65%"></i></div><span class="num">41k €</span></div><div class="row"><span>Aug</span><div class="bar"><i style="width:100%"></i></div><span class="num">63k €</span></div><div class="row"><span>Sep</span><div class="bar"><i style="width:70%"></i></div><span class="num">44k €</span></div></div></div>
+        <span class="small muted">Sources: Payroll Q3 runs, Planning 2026 budget · only data you are allowed to see.</span>
+      </div>
+    </div>
+    <div class="composer"><input placeholder="Ask anything about people, pay or money…" aria-label="Message"><a href="#" class="btn primary" data-toast="Kestrel is thinking…">Send</a></div>
+  </div>
+  <div>
+    <div class="card">
+      <h2>Try asking</h2>
+      <div class="chips">
+        <button class="chip">Show me my last payslip</button>
+        <button class="chip">Who in my team is off next week?</button>
+        <button class="chip">Change my bank account</button>
+        <button class="chip">Draft a job post for a route planner</button>
+        <button class="chip">Why is Lyon over budget?</button>
+        <button class="chip">Approve all expenses under €50 that pass policy</button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>This month</h2>
+      <div class="card kpi"><div class="label">HR questions answered without a ticket</div><div class="value">1 in 3</div><div class="delta up">2,140 answers</div></div>
+      <p class="small muted" style="margin-top:10px">Respects role-based permissions. Every action asks you to confirm and is logged in the audit trail.</p>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+<script src="/widget/widget.js" defer></script>
+</body>
+</html>

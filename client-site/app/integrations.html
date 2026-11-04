@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Integrations and API · Kestrel</title>
+<link rel="stylesheet" href="../assets/kestrel.css">
+<script src="../assets/kestrel.js"></script>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <a class="logo" href="home.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#2450d8"/><path d="M4 15 L12 7 L20 12 L13 11 L9 17 Z" fill="#fff"/></svg>Kestrel</a>
+  <div class="search">&#9906;&nbsp; Search people, reports, tasks, or ask Kestrel…</div>
+  <div class="right"><span>Brisa Logistics S.L.</span><span class="badge">EU · Frankfurt</span><span title="Notifications">&#128276; 3</span><span class="avatar">LF</span></div>
+</header>
+<nav class="sidebar" aria-label="Kestrel modules">
+<div class="group">Workspace</div>
+<a href="home.html"><span class="dot"></span>Home</a>
+<a href="assistant.html"><span class="dot"></span>Assistant</a>
+<div class="group">People</div>
+<a href="people.html"><span class="dot"></span>People</a>
+<a href="timeoff.html"><span class="dot"></span>Time off</a>
+<a href="payroll.html"><span class="dot"></span>Payroll</a>
+<div class="group">Talent</div>
+<a href="recruiting.html"><span class="dot"></span>Recruiting</a>
+<a href="performance.html"><span class="dot"></span>Performance</a>
+<a href="skills.html"><span class="dot"></span>Skills map</a>
+<div class="group">Finance</div>
+<a href="expenses.html"><span class="dot"></span>Expenses</a>
+<a href="close.html"><span class="dot"></span>Financial close</a>
+<a href="planning.html"><span class="dot"></span>Planning</a>
+<a href="analytics.html"><span class="dot"></span>Analytics</a>
+<div class="group">Platform</div>
+<a href="integrations.html"><span class="dot"></span>Integrations</a>
+<a href="security.html"><span class="dot"></span>Security</a>
+<div class="back"><a href="../pricing.html"><span class="dot"></span>Plans &amp; pricing</a><a href="../index.html"><span class="dot"></span>kestrel.example website</a></div>
+</nav>
+<main class="screen" data-feature="integrations">
+  <div class="page-head">
+    <div><div class="crumbs">Platform · 9 connected · 300+ available</div><h1>Integrations and API</h1></div>
+    <div class="actions"><a href="#" class="btn" data-toast="Opened developer docs">API docs</a><a href="#" class="btn primary" data-toast="Connector catalogue · 312 apps">Add connector</a></div>
+  </div>
+
+<div class="grid g4">
+  <div class="card kpi"><div class="label">Connectors available</div><div class="value">312</div><div class="delta ">banks, ERPs, chat, ID</div></div>
+  <div class="card kpi"><div class="label">Connected</div><div class="value">9</div><div class="delta down">1 needs attention</div></div>
+  <div class="card kpi"><div class="label">API calls (24 h)</div><div class="value">182,440</div><div class="delta up">99.98% success</div></div>
+  <div class="card kpi"><div class="label">Webhooks</div><div class="value">14</div><div class="delta ">avg. 210 ms</div></div>
+</div>
+<div class="card">
+  <h2>Connected apps</h2>
+  <div class="grid g3"><div class="card" style="margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="avatar">BA</span><div style="flex:1"><b>Banca Meridia</b><div class="small muted">Bank · SEPA payments</div></div><span class="badge ok">Connected</span></div></div><div class="card" style="margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="avatar">CA</span><div style="flex:1"><b>Caixa Atlântica</b><div class="small muted">Bank · PT payroll</div></div><span class="badge ok">Connected</span></div></div><div class="card" style="margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="avatar">SA</span><div style="flex:1"><b>SAP S/4HANA</b><div class="small muted">ERP · general ledger sync</div></div><span class="badge ok">Connected</span></div></div><div class="card" style="margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="avatar">SL</span><div style="flex:1"><b>Slack</b><div class="small muted">Approvals in chat</div></div><span class="badge ok">Connected</span></div></div><div class="card" style="margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="avatar">MI</span><div style="flex:1"><b>Microsoft Teams</b><div class="small muted">Approvals in chat</div></div><span class="badge ">Available</span></div></div><div class="card" style="margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="avatar">GO</span><div style="flex:1"><b>Google Workspace</b><div class="small muted">SSO and directory</div></div><span class="badge ok">Connected</span></div></div><div class="card" style="margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="avatar">SA</span><div style="flex:1"><b>Salesforce</b><div class="small muted">Sales commissions</div></div><span class="badge warn">Token expires 9 Nov</span></div></div><div class="card" style="margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="avatar">OK</span><div style="flex:1"><b>Okta</b><div class="small muted">SSO and provisioning</div></div><span class="badge ok">Connected</span></div></div><div class="card" style="margin:0"><div style="display:flex;align-items:center;gap:10px"><span class="avatar">TA</span><div style="flex:1"><b>TachoFleet</b><div class="small muted">Driver hours (tachograph)</div></div><span class="badge ok">Connected</span></div></div></div>
+</div>
+<div class="grid g2">
+  <div class="card">
+    <h2>Open API · REST + webhooks</h2>
+<pre style="background:#1b1f27;color:#e6e9ef;border-radius:8px;padding:14px;font-size:12px;overflow:auto;margin:0">GET /v2/workers?location=Zaragoza&amp;status=active
+Authorization: Bearer ks_test_••••••••
+
+200 OK
+{ "data": [ { "id": "W-004812",
+     "name": "Amara Kowalczyk",
+     "job": "Warehouse lead",
+     "cost_centre": "OPS-ES-ZAZ" } ],
+  "next": "cursor_9f2a" }</pre>
+  </div>
+  <div class="card">
+    <h2>Recent events</h2>
+    <table class="t"><thead><tr><th>Time</th><th>Event</th><th>Target</th><th>Status</th></tr></thead><tbody>
+      <tr><td>13:02</td><td>worker.hired</td><td>Okta</td><td><span class="badge ok">200</span></td></tr>
+      <tr><td>12:58</td><td>expense.approved</td><td>SAP S/4HANA</td><td><span class="badge ok">200</span></td></tr>
+      <tr><td>12:41</td><td>payroll.bank_file</td><td>Banca Meridia</td><td><span class="badge ok">200</span></td></tr>
+      <tr><td>12:30</td><td>deal.closed</td><td>Salesforce</td><td><span class="badge warn">Retry 2/5</span></td></tr>
+    </tbody></table>
+  </div>
+</div>
+
+</main>
+</div>
+<script src="/widget/widget.js" defer></script>
+</body>
+</html>

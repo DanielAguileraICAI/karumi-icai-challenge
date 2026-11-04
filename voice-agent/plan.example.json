@@ -1,0 +1,9 @@
+{
+  "product": "Acme CRM",
+  "url": "https://acme.com",
+  "source": "dani-planner",
+  "pages": [
+    { "id": "home", "url": "https://acme.com", "title": "Inicio", "summary": "Qué es Acme", "keywords": ["crm"], "score": 1 },
+    { "id": "pricing", "url": "https://acme.com/pricing", "title": "Precios", "summary": "Plan Pro 49€/mes", "keywords": ["precio", "plan"], "score": 0.8 }
+  ]
+}

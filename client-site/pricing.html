@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing · Kestrel</title>
+<link rel="stylesheet" href="assets/kestrel.css">
+<script src="assets/kestrel.js"></script>
+</head>
+<body>
+<nav class="site-nav">
+  <a class="logo" href="index.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#2450d8"/><path d="M4 15 L12 7 L20 12 L13 11 L9 17 Z" fill="#fff"/></svg>Kestrel</a>
+  <div class="links">
+    <a href="index.html#modules">Product</a>
+    <a href="index.html#customers">Customers</a>
+    <a href="app/security.html">Security</a>
+    <a href="pricing.html" style="color:#2450d8;font-weight:600">Pricing</a>
+  </div>
+  <div class="cta">
+    <a class="btn" href="app/home.html">Sign in</a>
+    <a class="btn primary" href="#roi">Calculate ROI</a>
+  </div>
+</nav>
+
+<main data-feature="pricing">
+<div class="wrap">
+  <section style="padding:56px 0 32px;text-align:center">
+    <div class="eyebrow">Plans and ROI</div>
+    <h1 style="font-size:40px;letter-spacing:-0.03em">Priced per employee. Paid back in months.</h1>
+    <p class="muted" style="font-size:17px;max-width:620px;margin:0 auto">One price per employee per month, billed yearly. Every plan includes the Kestrel assistant, the mobile app, SSO and EU data residency.</p>
+  </section>
+
+  <div class="plans">
+    <div class="plan">
+      <h2>Core</h2>
+      <p class="muted">HR basics for growing teams.</p>
+      <div class="price">€14<small> /employee /month</small></div>
+      <ul>
+        <li>Worker profiles and org chart</li>
+        <li>Time off and absence</li>
+        <li>Personal home and inbox</li>
+        <li>Kestrel assistant</li>
+        <li>Standard reports</li>
+      </ul>
+      <a href="#roi" class="btn">Calculate ROI</a>
+    </div>
+    <div class="plan featured">
+      <div><span class="badge blue">Most chosen</span></div>
+      <h2 style="margin-top:8px">Suite</h2>
+      <p class="muted">People, pay and spend on one record.</p>
+      <div class="price">€24<small> /employee /month</small></div>
+      <ul>
+        <li>Everything in Core</li>
+        <li>Multi-country payroll with live checks</li>
+        <li>Recruiting, performance, AI skills map</li>
+        <li>Expenses from a photo</li>
+        <li>People and money dashboards</li>
+        <li>300+ connectors and open API</li>
+      </ul>
+      <a href="#roi" class="btn primary">Calculate ROI</a>
+    </div>
+    <div class="plan">
+      <h2>Enterprise</h2>
+      <p class="muted">Adds financials and planning.</p>
+      <div class="price">€32<small> /employee /month</small></div>
+      <ul>
+        <li>Everything in Suite</li>
+        <li>Continuous financial close</li>
+        <li>Headcount and budget planning</li>
+        <li>Customer-managed keys, 10-year audit log</li>
+        <li>Named success manager, 99.95% SLA</li>
+      </ul>
+      <a href="#roi" class="btn">Calculate ROI</a>
+    </div>
+  </div>
+
+  <section class="section" style="margin-top:48px" id="roi-section">
+    <div class="eyebrow">ROI calculator</div>
+    <h2 class="big">What would Kestrel save you?</h2>
+    <p class="sub">Based on admin hours saved across HR, payroll and finance (at €38/hour) and tools you can switch off (€95 per employee per year). Average payback across customers: 9 months.</p>
+    <div class="roi" id="roi">
+      <div>
+        <label for="emp">Employees: <span id="empv">1,200</span></label>
+        <input id="emp" type="range" min="200" max="8000" step="50" value="1200">
+        <label for="hrs">Admin hours saved per employee per month: <span id="hrsv">1</span></label>
+        <input id="hrs" type="range" min="0.25" max="3" step="0.25" value="1">
+        <label for="plan">Plan</label>
+        <select id="plan" class="btn" style="width:100%;text-align:left">
+          <option value="14">Core · €14</option>
+          <option value="24" selected>Suite · €24</option>
+          <option value="32">Enterprise · €32</option>
+        </select>
+        <p class="small muted" style="margin-top:14px">Implementation is a one-off €200 per employee, live in 12 weeks.</p>
+      </div>
+      <div class="out">
+        <div class="row"><span>Kestrel subscription / year</span><b id="cost">–</b></div>
+        <div class="row"><span>Implementation (one-off)</span><b id="impl">–</b></div>
+        <div class="row"><span>Savings / year</span><b id="saved" class="up">–</b></div>
+        <div class="row"><span>Net benefit / year</span><b id="net">–</b></div>
+        <div class="row"><span>Payback</span><span id="payback" style="color:#2450d8">–</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="eyebrow">Implementation</div>
+    <h2 class="big">Live in 12 weeks.</h2>
+    <div class="timeline">
+      <div><b>Weeks 1–3</b>Design: org, pay rules, roles and policies.</div>
+      <div><b>Weeks 4–7</b>Build: data migration and connectors.</div>
+      <div><b>Weeks 8–10</b>Test: two parallel payroll runs.</div>
+      <div><b>Weeks 11–12</b>Go live and hypercare.</div>
+    </div>
+  </section>
+</div>
+</main>
+
+<footer class="site">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px">
+    <span>© 2026 Kestrel Software S.L. · Fictional company built for a hackathon demo. All data is invented.</span>
+    <span><a href="index.html">Home</a> · <a href="app/home.html">Product</a> · <a href="app/security.html">Security</a></span>
+  </div>
+</footer>
+<script src="/widget/widget.js" defer></script>
+</body>
+</html>

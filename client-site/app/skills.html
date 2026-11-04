@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skills map · Kestrel</title>
+<link rel="stylesheet" href="../assets/kestrel.css">
+<script src="../assets/kestrel.js"></script>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <a class="logo" href="home.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#2450d8"/><path d="M4 15 L12 7 L20 12 L13 11 L9 17 Z" fill="#fff"/></svg>Kestrel</a>
+  <div class="search">&#9906;&nbsp; Search people, reports, tasks, or ask Kestrel…</div>
+  <div class="right"><span>Brisa Logistics S.L.</span><span class="badge">EU · Frankfurt</span><span title="Notifications">&#128276; 3</span><span class="avatar">LF</span></div>
+</header>
+<nav class="sidebar" aria-label="Kestrel modules">
+<div class="group">Workspace</div>
+<a href="home.html"><span class="dot"></span>Home</a>
+<a href="assistant.html"><span class="dot"></span>Assistant</a>
+<div class="group">People</div>
+<a href="people.html"><span class="dot"></span>People</a>
+<a href="timeoff.html"><span class="dot"></span>Time off</a>
+<a href="payroll.html"><span class="dot"></span>Payroll</a>
+<div class="group">Talent</div>
+<a href="recruiting.html"><span class="dot"></span>Recruiting</a>
+<a href="performance.html"><span class="dot"></span>Performance</a>
+<a href="skills.html"><span class="dot"></span>Skills map</a>
+<div class="group">Finance</div>
+<a href="expenses.html"><span class="dot"></span>Expenses</a>
+<a href="close.html"><span class="dot"></span>Financial close</a>
+<a href="planning.html"><span class="dot"></span>Planning</a>
+<a href="analytics.html"><span class="dot"></span>Analytics</a>
+<div class="group">Platform</div>
+<a href="integrations.html"><span class="dot"></span>Integrations</a>
+<a href="security.html"><span class="dot"></span>Security</a>
+<div class="back"><a href="../pricing.html"><span class="dot"></span>Plans &amp; pricing</a><a href="../index.html"><span class="dot"></span>kestrel.example website</a></div>
+</nav>
+<main class="screen" data-feature="skills">
+  <div class="page-head">
+    <div><div class="crumbs">Talent · AI inferred from jobs, projects and courses</div><h1>Skills map</h1></div>
+    <div class="actions"><a href="#" class="btn" data-toast="Taxonomy opened · 1,920 skills">Skills taxonomy</a><a href="#" class="btn primary" data-toast="18 matches found for open roles">Suggest internal moves</a></div>
+  </div>
+
+<div class="grid g4">
+  <div class="card kpi"><div class="label">Skills detected</div><div class="value">9,640</div><div class="delta ">across 1,284 workers</div></div>
+  <div class="card kpi"><div class="label">Open roles filled internally</div><div class="value">35%</div><div class="delta up">+14 pts this year</div></div>
+  <div class="card kpi"><div class="label">Critical skill gaps</div><div class="value">4</div><div class="delta down">Python, customs, EV fleet, FP&amp;A</div></div>
+  <div class="card kpi"><div class="label">Learning hours</div><div class="value">6,210</div><div class="delta ">this year</div></div>
+</div>
+<div class="grid g3">
+  <div class="card span2">
+    <h2>Company skills map <span class="badge blue">AI inferred</span></h2>
+    <svg class="chart" viewBox="0 0 620 240"><circle cx="120" cy="70" r="38" fill="#2450d8" fill-opacity="0.9"/><text x="120" y="120" font-size="10" text-anchor="middle" fill="#5d6573">Route optimisation</text><circle cx="230" cy="120" r="30" fill="#cfd8f4" fill-opacity="1"/><text x="230" y="162" font-size="10" text-anchor="middle" fill="#5d6573">Fleet telematics</text><circle cx="90" cy="160" r="34" fill="#2450d8" fill-opacity="0.9"/><text x="90" y="206" font-size="10" text-anchor="middle" fill="#5d6573">Forklift ops</text><circle cx="330" cy="70" r="26" fill="#cfd8f4" fill-opacity="1"/><text x="330" y="108" font-size="10" text-anchor="middle" fill="#5d6573">Excel modelling</text><circle cx="360" cy="160" r="40" fill="#2450d8" fill-opacity="0.9"/><text x="360" y="212" font-size="10" text-anchor="middle" fill="#5d6573">People leadership</text><circle cx="480" cy="100" r="24" fill="#cfd8f4" fill-opacity="1"/><text x="480" y="136" font-size="10" text-anchor="middle" fill="#5d6573">Spanish/French</text><circle cx="540" cy="170" r="16" fill="#cfd8f4" fill-opacity="1"/><text x="540" y="198" font-size="10" text-anchor="middle" fill="#5d6573">Python</text><circle cx="470" cy="200" r="14" fill="#cfd8f4" fill-opacity="1"/><text x="470" y="226" font-size="10" text-anchor="middle" fill="#5d6573">Customs</text><circle cx="200" cy="200" r="22" fill="#cfd8f4" fill-opacity="1"/><text x="200" y="234" font-size="10" text-anchor="middle" fill="#5d6573">Safety (ISO 45001)</text></svg>
+    <p class="small muted">Bubble size = number of workers with the skill. Blue = strong supply.</p>
+  </div>
+  <div class="card">
+    <h2>Gaps vs 2027 plan</h2>
+    <div class="hbars"><div class="row"><span>EV fleet</span><div class="bar"><i style="width:100%"></i></div><span class="num">42 FTE</span></div><div class="row"><span>Customs</span><div class="bar"><i style="width:74%"></i></div><span class="num">31 FTE</span></div><div class="row"><span>Python</span><div class="bar"><i style="width:57%"></i></div><span class="num">24 FTE</span></div><div class="row"><span>FP&amp;A</span><div class="bar"><i style="width:29%"></i></div><span class="num">12 FTE</span></div></div>
+    <p class="small muted">Workers needed by end 2027 that you don't have today.</p>
+  </div>
+</div>
+<div class="card">
+  <h2>Suggested internal moves</h2>
+  <table class="t"><thead><tr><th>Worker</th><th>Current role</th><th>Suggested role</th><th>Skill match</th><th>Why</th><th></th></tr></thead><tbody>
+    <tr><td><div class="who"><span class="avatar sm">IS</span><div><b>Iván Soler</b><span>Madrid</span></div></div></td><td>Fleet analyst</td><td>EV fleet planner</td><td><span class="badge ok">91%</span></td><td class="small">Telematics + Python projects, EV course done</td><td><a href="#" class="btn" data-toast="Iván and his manager notified">Suggest</a></td></tr>
+    <tr><td><div class="who"><span class="avatar sm">AK</span><div><b>Amara Kowalczyk</b><span>Zaragoza</span></div></div></td><td>Warehouse lead</td><td>Ops supervisor</td><td><span class="badge ok">88%</span></td><td class="small">Leads 31 people, safety certified</td><td><a href="#" class="btn" data-toast="Added to REQ-2291 shortlist">Suggest</a></td></tr>
+    <tr><td><div class="who"><span class="avatar sm">JP</span><div><b>João Pires</b><span>Lisbon</span></div></div></td><td>Payroll specialist</td><td>Payroll analyst</td><td><span class="badge">76%</span></td><td class="small">4 countries payroll, Excel modelling</td><td><a href="#" class="btn" data-toast="João notified">Suggest</a></td></tr>
+  </tbody></table>
+</div>
+
+</main>
+</div>
+<script src="/widget/widget.js" defer></script>
+</body>
+</html>

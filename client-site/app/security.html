@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Security and permissions · Kestrel</title>
+<link rel="stylesheet" href="../assets/kestrel.css">
+<script src="../assets/kestrel.js"></script>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <a class="logo" href="home.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#2450d8"/><path d="M4 15 L12 7 L20 12 L13 11 L9 17 Z" fill="#fff"/></svg>Kestrel</a>
+  <div class="search">&#9906;&nbsp; Search people, reports, tasks, or ask Kestrel…</div>
+  <div class="right"><span>Brisa Logistics S.L.</span><span class="badge">EU · Frankfurt</span><span title="Notifications">&#128276; 3</span><span class="avatar">LF</span></div>
+</header>
+<nav class="sidebar" aria-label="Kestrel modules">
+<div class="group">Workspace</div>
+<a href="home.html"><span class="dot"></span>Home</a>
+<a href="assistant.html"><span class="dot"></span>Assistant</a>
+<div class="group">People</div>
+<a href="people.html"><span class="dot"></span>People</a>
+<a href="timeoff.html"><span class="dot"></span>Time off</a>
+<a href="payroll.html"><span class="dot"></span>Payroll</a>
+<div class="group">Talent</div>
+<a href="recruiting.html"><span class="dot"></span>Recruiting</a>
+<a href="performance.html"><span class="dot"></span>Performance</a>
+<a href="skills.html"><span class="dot"></span>Skills map</a>
+<div class="group">Finance</div>
+<a href="expenses.html"><span class="dot"></span>Expenses</a>
+<a href="close.html"><span class="dot"></span>Financial close</a>
+<a href="planning.html"><span class="dot"></span>Planning</a>
+<a href="analytics.html"><span class="dot"></span>Analytics</a>
+<div class="group">Platform</div>
+<a href="integrations.html"><span class="dot"></span>Integrations</a>
+<a href="security.html"><span class="dot"></span>Security</a>
+<div class="back"><a href="../pricing.html"><span class="dot"></span>Plans &amp; pricing</a><a href="../index.html"><span class="dot"></span>kestrel.example website</a></div>
+</nav>
+<main class="screen" data-feature="security">
+  <div class="page-head">
+    <div><div class="crumbs">Platform · Tenant brisa-prod · EU data residency</div><h1>Security and permissions</h1></div>
+    <div class="actions"><a href="#" class="btn" data-toast="Report shared under NDA">Download SOC 2 report</a><a href="#" class="btn primary" data-toast="Role editor opened">New role</a></div>
+  </div>
+
+<div class="grid g4">
+  <div class="card kpi"><div class="label">Certifications</div><div class="value">SOC 2 · ISO</div><div class="delta ">SOC 2 Type II, ISO 27001</div></div>
+  <div class="card kpi"><div class="label">Data residency</div><div class="value">EU only</div><div class="delta ">Frankfurt + Dublin</div></div>
+  <div class="card kpi"><div class="label">SSO + MFA</div><div class="value">100%</div><div class="delta up">1,284 of 1,284 users</div></div>
+  <div class="card kpi"><div class="label">Audit events (30 d)</div><div class="value">412,906</div><div class="delta ">kept 10 years</div></div>
+</div>
+<div class="grid g3">
+  <div class="card span2">
+    <h2>Role-based access</h2>
+    <table class="t"><thead><tr><th>Role</th><th>Worker records</th><th>Pay data</th><th>Expenses</th><th>Ledger</th><th>Reports</th></tr></thead><tbody>
+    <tr><td><b>Payroll admin</b></td><td>✓</td><td>✓</td><td>✓</td><td>–</td><td>✓</td></tr><tr><td><b>HR business partner</b></td><td>✓</td><td>View</td><td>–</td><td>–</td><td>✓</td></tr><tr><td><b>Manager</b></td><td>Team</td><td>Team</td><td>Team</td><td>–</td><td>–</td></tr><tr><td><b>Finance controller</b></td><td>–</td><td>Totals</td><td>✓</td><td>✓</td><td>✓</td></tr><tr><td><b>Employee</b></td><td>Self</td><td>Self</td><td>Self</td><td>–</td><td>–</td></tr>
+    </tbody></table>
+  </div>
+  <div class="card">
+    <h2>Controls</h2>
+    <ul class="list">
+      <li><span class="badge ok">On</span><span class="grow">Encryption at rest (AES-256) and in transit (TLS 1.3)</span></li>
+      <li><span class="badge ok">On</span><span class="grow">Field-level masking for pay and bank data</span></li>
+      <li><span class="badge ok">On</span><span class="grow">Segregation of duties: payroll run ≠ approver</span></li>
+      <li><span class="badge ok">On</span><span class="grow">GDPR: right to erasure workflow</span></li>
+      <li><span class="badge ok">On</span><span class="grow">Customer-managed keys</span></li>
+    </ul>
+  </div>
+</div>
+<div class="card">
+  <h2>Audit trail</h2>
+  <table class="t"><thead><tr><th>When</th><th>Who</th><th>Action</th><th>Record</th><th>From</th></tr></thead><tbody>
+    <tr><td>Today 12:58</td><td>Marta Lindqvist</td><td>Approved expense</td><td>EXP-77120 · €172.50</td><td>Madrid · SSO</td></tr>
+    <tr><td>Today 12:44</td><td>João Pires</td><td>Viewed pay data</td><td>W-004812</td><td>Lisbon · SSO</td></tr>
+    <tr><td>Today 11:20</td><td>Kestrel assistant</td><td>Drafted time-off request for Lucía Fernández</td><td>TO-55190</td><td>On behalf, confirmed</td></tr>
+    <tr><td>Today 09:03</td><td>System</td><td>Blocked sign-in, impossible travel</td><td>user r.almeida</td><td>Unknown · MFA failed</td></tr>
+  </tbody></table>
+</div>
+
+</main>
+</div>
+<script src="/widget/widget.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Expenses · Kestrel</title>
+<link rel="stylesheet" href="../assets/kestrel.css">
+<script src="../assets/kestrel.js"></script>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <a class="logo" href="home.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#2450d8"/><path d="M4 15 L12 7 L20 12 L13 11 L9 17 Z" fill="#fff"/></svg>Kestrel</a>
+  <div class="search">&#9906;&nbsp; Search people, reports, tasks, or ask Kestrel…</div>
+  <div class="right"><span>Brisa Logistics S.L.</span><span class="badge">EU · Frankfurt</span><span title="Notifications">&#128276; 3</span><span class="avatar">LF</span></div>
+</header>
+<nav class="sidebar" aria-label="Kestrel modules">
+<div class="group">Workspace</div>
+<a href="home.html"><span class="dot"></span>Home</a>
+<a href="assistant.html"><span class="dot"></span>Assistant</a>
+<div class="group">People</div>
+<a href="people.html"><span class="dot"></span>People</a>
+<a href="timeoff.html"><span class="dot"></span>Time off</a>
+<a href="payroll.html"><span class="dot"></span>Payroll</a>
+<div class="group">Talent</div>
+<a href="recruiting.html"><span class="dot"></span>Recruiting</a>
+<a href="performance.html"><span class="dot"></span>Performance</a>
+<a href="skills.html"><span class="dot"></span>Skills map</a>
+<div class="group">Finance</div>
+<a href="expenses.html"><span class="dot"></span>Expenses</a>
+<a href="close.html"><span class="dot"></span>Financial close</a>
+<a href="planning.html"><span class="dot"></span>Planning</a>
+<a href="analytics.html"><span class="dot"></span>Analytics</a>
+<div class="group">Platform</div>
+<a href="integrations.html"><span class="dot"></span>Integrations</a>
+<a href="security.html"><span class="dot"></span>Security</a>
+<div class="back"><a href="../pricing.html"><span class="dot"></span>Plans &amp; pricing</a><a href="../index.html"><span class="dot"></span>kestrel.example website</a></div>
+</nav>
+<main class="screen" data-feature="expenses">
+  <div class="page-head">
+    <div><div class="crumbs">Spend · Snap a receipt, the claim fills itself</div><h1>Expenses</h1></div>
+    <div class="actions"><a href="#" class="btn" data-toast="2 corporate cards">My cards</a><a href="#" class="btn primary" data-toast="Camera opened on your phone">Snap a receipt</a></div>
+  </div>
+
+<div class="grid g3">
+  <div class="card">
+    <h2>Receipt <span class="badge blue">Read in 3 s</span></h2>
+    <div style="border:1px dashed #c9ced6;border-radius:8px;padding:14px;background:#fff;font-family:ui-monospace,Menlo,monospace;font-size:11px;line-height:1.6;transform:rotate(-1.5deg)">
+RESTAURANTE EL PUERTO<br>C/ Marina 12, Valencia<br>CIF B-46000000<br>------------------------------<br>02/11/2026 21:42 Mesa 7<br>2 x Menú degustación   136,00<br>1 x Vino tinto          32,00<br>1 x Agua                 4,50<br>------------------------------<br>Base                   156,82<br>IVA 10%                 15,68<br><b>TOTAL EUR              172,50</b><br>VISA ****4417</div>
+  </div>
+  <div class="card">
+    <h2>Claim filled by AI</h2>
+    <table class="t">
+      <tr><td class="muted">Merchant</td><td>Restaurante El Puerto</td></tr>
+      <tr><td class="muted">Date</td><td>2 Nov 2026</td></tr>
+      <tr><td class="muted">Category</td><td>Client entertainment</td></tr>
+      <tr><td class="muted">Amount</td><td><b>€172.50</b> (VAT €15.68)</td></tr>
+      <tr><td class="muted">Attendees</td><td>Tomás Rey + 1 client (Grupo Levante)</td></tr>
+      <tr><td class="muted">Cost centre</td><td>SALES-ES-VLC</td></tr>
+      <tr><td class="muted">Paid with</td><td>Corporate Visa ••4417</td></tr>
+    </table>
+    <div style="margin-top:12px"><a href="#" class="btn primary" data-toast="Submitted in 40 s · sent to Marta Lindqvist">Submit claim</a></div>
+  </div>
+  <div class="card">
+    <h2>Policy check</h2>
+    <ul class="list">
+      <li><span class="badge ok">Pass</span><span class="grow">Under €90 per person limit (€86.25)</span></li>
+      <li><span class="badge ok">Pass</span><span class="grow">Valid VAT invoice, tax ID found</span></li>
+      <li><span class="badge ok">Pass</span><span class="grow">Matches card transaction 2 Nov</span></li>
+      <li><span class="badge warn">Note</span><span class="grow">Alcohol line: allowed for client meals</span></li>
+      <li><span class="badge ok">Pass</span><span class="grow">Not a duplicate</span></li>
+    </ul>
+  </div>
+</div>
+<div class="grid g4">
+  <div class="card kpi"><div class="label">Avg. time to submit</div><div class="value">40 s</div><div class="delta up">was 11 min</div></div>
+  <div class="card kpi"><div class="label">Spend this month</div><div class="value">€214,380</div><div class="delta ">62% on travel</div></div>
+  <div class="card kpi"><div class="label">Out of policy</div><div class="value">1.8%</div><div class="delta up">-4.1 pts</div></div>
+  <div class="card kpi"><div class="label">Reimbursed in</div><div class="value">2.4 days</div><div class="delta ">average</div></div>
+</div>
+<div class="card">
+  <h2>Recent claims</h2>
+  <table class="t"><thead><tr><th>Worker</th><th>Merchant</th><th>Category</th><th class="num">Amount</th><th>Status</th></tr></thead><tbody>
+    <tr><td><div class="who"><span class="avatar sm">TR</span><div><b>Tomás Rey</b><span>Sales</span></div></div></td><td>Restaurante El Puerto</td><td>Client entertainment</td><td class="num">€172.50</td><td><span class="badge blue">Submitted</span></td></tr>
+    <tr><td><div class="who"><span class="avatar sm">CS</span><div><b>Chloé Simon</b><span>Operations</span></div></div></td><td>SNCF</td><td>Train</td><td class="num">€86.00</td><td><span class="badge ok">Approved</span></td></tr>
+    <tr><td><div class="who"><span class="avatar sm">RA</span><div><b>Rui Almeida</b><span>Operations</span></div></div></td><td>Auto Peças Norte</td><td>Vehicle parts</td><td class="num">€312.40</td><td><span class="badge warn">Needs receipt</span></td></tr>
+    <tr><td><div class="who"><span class="avatar sm">ML</span><div><b>Marta Lindqvist</b><span>Sales</span></div></div></td><td>Hotel Miramar</td><td>Lodging</td><td class="num">€248.00</td><td><span class="badge ok">Paid</span></td></tr>
+  </tbody></table>
+</div>
+
+</main>
+</div>
+<script src="/widget/widget.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payroll run · November 2026 · Kestrel</title>
+<link rel="stylesheet" href="../assets/kestrel.css">
+<script src="../assets/kestrel.js"></script>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <a class="logo" href="home.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#2450d8"/><path d="M4 15 L12 7 L20 12 L13 11 L9 17 Z" fill="#fff"/></svg>Kestrel</a>
+  <div class="search">&#9906;&nbsp; Search people, reports, tasks, or ask Kestrel…</div>
+  <div class="right"><span>Brisa Logistics S.L.</span><span class="badge">EU · Frankfurt</span><span title="Notifications">&#128276; 3</span><span class="avatar">LF</span></div>
+</header>
+<nav class="sidebar" aria-label="Kestrel modules">
+<div class="group">Workspace</div>
+<a href="home.html"><span class="dot"></span>Home</a>
+<a href="assistant.html"><span class="dot"></span>Assistant</a>
+<div class="group">People</div>
+<a href="people.html"><span class="dot"></span>People</a>
+<a href="timeoff.html"><span class="dot"></span>Time off</a>
+<a href="payroll.html"><span class="dot"></span>Payroll</a>
+<div class="group">Talent</div>
+<a href="recruiting.html"><span class="dot"></span>Recruiting</a>
+<a href="performance.html"><span class="dot"></span>Performance</a>
+<a href="skills.html"><span class="dot"></span>Skills map</a>
+<div class="group">Finance</div>
+<a href="expenses.html"><span class="dot"></span>Expenses</a>
+<a href="close.html"><span class="dot"></span>Financial close</a>
+<a href="planning.html"><span class="dot"></span>Planning</a>
+<a href="analytics.html"><span class="dot"></span>Analytics</a>
+<div class="group">Platform</div>
+<a href="integrations.html"><span class="dot"></span>Integrations</a>
+<a href="security.html"><span class="dot"></span>Security</a>
+<div class="back"><a href="../pricing.html"><span class="dot"></span>Plans &amp; pricing</a><a href="../index.html"><span class="dot"></span>kestrel.example website</a></div>
+</nav>
+<main class="screen" data-feature="payroll">
+  <div class="page-head">
+    <div><div class="crumbs">Payroll · Pay date Fri 13 Nov</div><h1>Payroll run · November 2026</h1></div>
+    <div class="actions"><a href="#" class="btn" data-toast="Variance report opened">Compare to October</a><a href="#" class="btn primary" data-toast="Run locked · bank files sent to 4 banks">Approve and pay</a></div>
+  </div>
+
+<div class="card" style="margin-bottom:16px">
+  <div style="display:flex;gap:0">
+    <div style="flex:1;padding:4px 10px;border-top:3px solid #2450d8"><b class="small">1. Inputs</b><div class="small muted">Done · 2 Nov</div></div><div style="flex:1;padding:4px 10px;border-top:3px solid #2450d8"><b class="small">2. Calculate</b><div class="small muted">Done · 3 Nov</div></div><div style="flex:1;padding:4px 10px;border-top:3px solid #a35a00"><b class="small">3. Live checks</b><div class="small muted">3 to review</div></div><div style="flex:1;padding:4px 10px;border-top:3px solid #e3e6eb"><b class="small">4. Approve</b><div class="small muted">Waiting</div></div><div style="flex:1;padding:4px 10px;border-top:3px solid #e3e6eb"><b class="small">5. Pay & file</b><div class="small muted">13 Nov</div></div>
+  </div>
+</div>
+<div class="grid g4">
+  <div class="card kpi"><div class="label">Gross pay</div><div class="value">€4.82M</div><div class="delta up">+1.4% vs Oct</div></div>
+  <div class="card kpi"><div class="label">Net pay</div><div class="value">€3.61M</div><div class="delta ">1,284 payslips</div></div>
+  <div class="card kpi"><div class="label">Employer cost</div><div class="value">€6.18M</div><div class="delta ">incl. social security</div></div>
+  <div class="card kpi"><div class="label">Checks passed</div><div class="value">99.8%</div><div class="delta down">1,281 of 1,284 · 3 flagged</div></div>
+</div>
+<div class="callout warn" style="margin-top:16px"><span class="ic">!</span><div><b>3 anomalies found before you pay.</b> Kestrel compares every payslip with history, contract and country rules. Fix them here, no spreadsheet needed.</div></div>
+<div class="card">
+  <h2>Live checks</h2>
+  <table class="t">
+    <thead><tr><th>Worker</th><th>Country</th><th>Check</th><th class="num">Amount</th><th>Severity</th><th></th></tr></thead>
+    <tbody>
+      <tr><td><div class="who"><span class="avatar sm">DM</span><div><b>Diego Marín</b><span>Driver · Zaragoza</span></div></div></td><td>ES</td><td>Overtime 46 h, above 40 h legal cap for the month</td><td class="num">€1,212.00</td><td><span class="badge bad">High</span></td><td><a href="#" class="btn" data-toast="Capped at 40 h · 6 h moved to time bank">Fix</a></td></tr>
+      <tr><td><div class="who"><span class="avatar sm">CS</span><div><b>Chloé Simon</b><span>Dispatcher · Lyon</span></div></div></td><td>FR</td><td>Net pay 38% higher than 6-month average</td><td class="num">€3,940.15</td><td><span class="badge warn">Medium</span></td><td><a href="#" class="btn" data-toast="Bonus confirmed by manager">Review</a></td></tr>
+      <tr><td><div class="who"><span class="avatar sm">RA</span><div><b>Rui Almeida</b><span>Mechanic · Porto</span></div></div></td><td>PT</td><td>Bank IBAN changed 2 days before pay date</td><td class="num">€1,486.70</td><td><span class="badge warn">Medium</span></td><td><a href="#" class="btn" data-toast="Verification sent to Rui's phone">Verify</a></td></tr>
+    </tbody>
+  </table>
+</div>
+<div class="grid g2">
+  <div class="card">
+    <h2>By country</h2>
+    <table class="t">
+      <thead><tr><th>Country</th><th class="num">Workers</th><th class="num">Gross</th><th>Filing</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr><td>Spain</td><td class="num">812</td><td class="num">€2.98M</td><td>Modelo 111 · SILTRA</td><td><span class="badge warn">1 check</span></td></tr>
+        <tr><td>Portugal</td><td class="num">214</td><td class="num">€0.61M</td><td>DMR · SS</td><td><span class="badge warn">1 check</span></td></tr>
+        <tr><td>France</td><td class="num">176</td><td class="num">€0.86M</td><td>DSN</td><td><span class="badge warn">1 check</span></td></tr>
+        <tr><td>United Kingdom</td><td class="num">82</td><td class="num">£0.32M</td><td>RTI · FPS</td><td><span class="badge ok">Ready</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h2>Gross pay, last 8 months <span class="small muted">€M</span></h2>
+    <div class="cols"><div class="c"><span class="small muted">4.51</span><i style="height:79%"></i></div><div class="c"><span class="small muted">4.55</span><i style="height:80%"></i></div><div class="c"><span class="small muted">4.58</span><i style="height:80%"></i></div><div class="c"><span class="small muted">4.6</span><i style="height:80%"></i></div><div class="c"><span class="small muted">4.86</span><i style="height:85%"></i></div><div class="c"><span class="small muted">4.7</span><i style="height:82%"></i></div><div class="c"><span class="small muted">4.75</span><i style="height:83%"></i></div><div class="c"><span class="small muted">4.82</span><i style="height:84%"></i></div></div><div class="cols-labels"><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span></div>
+  </div>
+</div>
+
+</main>
+</div>
+<script src="/widget/widget.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financial close · October 2026 · Kestrel</title>
+<link rel="stylesheet" href="../assets/kestrel.css">
+<script src="../assets/kestrel.js"></script>
+</head>
+<body>
+<div class="app">
+<header class="topbar">
+  <a class="logo" href="home.html"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="24" height="24" rx="6" fill="#2450d8"/><path d="M4 15 L12 7 L20 12 L13 11 L9 17 Z" fill="#fff"/></svg>Kestrel</a>
+  <div class="search">&#9906;&nbsp; Search people, reports, tasks, or ask Kestrel…</div>
+  <div class="right"><span>Brisa Logistics S.L.</span><span class="badge">EU · Frankfurt</span><span title="Notifications">&#128276; 3</span><span class="avatar">LF</span></div>
+</header>
+<nav class="sidebar" aria-label="Kestrel modules">
+<div class="group">Workspace</div>
+<a href="home.html"><span class="dot"></span>Home</a>
+<a href="assistant.html"><span class="dot"></span>Assistant</a>
+<div class="group">People</div>
+<a href="people.html"><span class="dot"></span>People</a>
+<a href="timeoff.html"><span class="dot"></span>Time off</a>
+<a href="payroll.html"><span class="dot"></span>Payroll</a>
+<div class="group">Talent</div>
+<a href="recruiting.html"><span class="dot"></span>Recruiting</a>
+<a href="performance.html"><span class="dot"></span>Performance</a>
+<a href="skills.html"><span class="dot"></span>Skills map</a>
+<div class="group">Finance</div>
+<a href="expenses.html"><span class="dot"></span>Expenses</a>
+<a href="close.html"><span class="dot"></span>Financial close</a>
+<a href="planning.html"><span class="dot"></span>Planning</a>
+<a href="analytics.html"><span class="dot"></span>Analytics</a>
+<div class="group">Platform</div>
+<a href="integrations.html"><span class="dot"></span>Integrations</a>
+<a href="security.html"><span class="dot"></span>Security</a>
+<div class="back"><a href="../pricing.html"><span class="dot"></span>Plans &amp; pricing</a><a href="../index.html"><span class="dot"></span>kestrel.example website</a></div>
+</nav>
+<main class="screen" data-feature="close">
+  <div class="page-head">
+    <div><div class="crumbs">Financials · Continuous close · Day 3 of 4</div><h1>Financial close · October 2026</h1></div>
+    <div class="actions"><a href="#" class="btn" data-toast="Trial balance exported">Trial balance</a><a href="#" class="btn primary" data-toast="Brisa ES signed off · audit trail saved">Sign off entity</a></div>
+  </div>
+
+<div class="grid g4">
+  <div class="card kpi"><div class="label">Close progress</div><div class="value">78%</div><div class="delta up">Day 3 of 4 · target 4</div></div>
+  <div class="card kpi"><div class="label">Auto-reconciled</div><div class="value">96.4%</div><div class="delta up">18,212 of 18,890 lines</div></div>
+  <div class="card kpi"><div class="label">Open exceptions</div><div class="value">14</div><div class="delta ">€38,120 unmatched</div></div>
+  <div class="card kpi"><div class="label">Days to close</div><div class="value">4</div><div class="delta up">was 10 in 2025</div></div>
+</div>
+<div class="grid g3">
+  <div class="card span2">
+    <h2>Close tasks</h2>
+    <table class="t"><thead><tr><th>Task</th><th>Owner</th><th>Status</th></tr></thead><tbody>
+    <tr><td>Bank reconciliations (11 accounts)</td><td>João Pires</td><td><span class="badge ok">Done</span></td></tr><tr><td>Accruals: fuel and tolls</td><td>Finance ES</td><td><span class="badge ok">Done</span></td></tr><tr><td>Intercompany ES ↔ PT ↔ FR</td><td>Group finance</td><td><span class="badge warn">2 breaks</span></td></tr><tr><td>Payroll journal November</td><td>Payroll</td><td><span class="badge blue">Auto · 13 Nov</span></td></tr><tr><td>Fixed assets depreciation</td><td>Finance ES</td><td><span class="badge ok">Done</span></td></tr><tr><td>FX revaluation GBP</td><td>Treasury</td><td><span class="badge ">Day 3</span></td></tr><tr><td>Management pack</td><td>FP&amp;A</td><td><span class="badge ">Day 4</span></td></tr>
+    </tbody></table>
+  </div>
+  <div class="card">
+    <h2>Reconciliation by entity</h2>
+    <div class="hbars"><div class="row"><span>Brisa ES</span><div class="bar"><i style="width:100%"></i></div><span class="num">99%</span></div><div class="row"><span>Brisa PT</span><div class="bar"><i style="width:98%"></i></div><span class="num">97%</span></div><div class="row"><span>Brisa FR</span><div class="bar"><i style="width:93%"></i></div><span class="num">92%</span></div><div class="row"><span>Brisa UK</span><div class="bar"><i style="width:96%"></i></div><span class="num">95%</span></div></div>
+    <div class="callout warn" style="margin-top:12px"><span class="ic">!</span><div class="small">FR ↔ ES intercompany differs by €21,400: invoice FR-88213 booked in Nov in ES. Suggested fix ready.</div></div>
+  </div>
+</div>
+<div class="card">
+  <h2>Ledger · unmatched lines</h2>
+  <table class="t"><thead><tr><th>Date</th><th>Account</th><th>Description</th><th class="num">Amount</th><th>Suggested match</th><th></th></tr></thead><tbody>
+    <tr><td>29 Oct</td><td>572001 Bank ES</td><td>Transfer BRISA FR SAS</td><td class="num">€21,400.00</td><td>Invoice FR-88213 <span class="badge ok">97%</span></td><td><a href="#" class="btn" data-toast="Matched · intercompany cleared">Match</a></td></tr>
+    <tr><td>30 Oct</td><td>410000 Suppliers</td><td>Repsol card fuel Oct</td><td class="num">€9,812.33</td><td>12 fuel receipts <span class="badge ok">94%</span></td><td><a href="#" class="btn" data-toast="Matched">Match</a></td></tr>
+    <tr><td>31 Oct</td><td>629000 Other services</td><td>Unknown card charge</td><td class="num">€418.00</td><td><span class="badge">No match</span></td><td><a href="#" class="btn" data-toast="Asked cardholder to add receipt">Ask owner</a></td></tr>
+  </tbody></table>
+</div>
+
+</main>
+</div>
+<script src="/widget/widget.js" defer></script>
+</body>
+</html>
