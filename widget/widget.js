@@ -108,7 +108,7 @@
       '.ns-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}',
       '.ns-chip{background:#F2EAD9;color:#161515;border-radius:4px;padding:2px 8px;font-size:12px}',
       '.ns-change{background:#FFFFFF;color:#161515;border:1px solid rgba(22,21,21,.14);border-radius:4px;padding:8px;margin-bottom:10px;font-size:13px}',
-      '.ns-change:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#D9F56A;margin-right:6px;vertical-align:1px}',
+      '.ns-change:before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#161515;margin-right:6px;vertical-align:1px}',
       '.ns-reply{background:#F2EAD9;color:#161515;border-radius:4px;padding:8px;margin-bottom:10px;font-size:13px}',
       '.ns-btns{display:flex;gap:8px;margin-bottom:8px}',
       '.ns-btn{flex:1;background:#161515;color:#FFFFFF;border:1px solid #161515;border-radius:4px;padding:8px;cursor:pointer;font-weight:600;font-size:14px}',
