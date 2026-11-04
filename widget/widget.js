@@ -207,20 +207,24 @@
     list.forEach(function (s, k) { s.n = k + 1; });
     save(); return ins;
   }
-  function pickReco(r) {
-    if (!r) return;
-    record({ type: 'reco_click', role: 'user', text: r.title, topic: r.key, page_url: r.page_url || location.href, reason: 'recommendation button' });
+  // viaVoice: el buyer la ha dicho en voz alta (ya se guarda como reco_idea, no como clic).
+  // Devuelve true si ha actuado sobre el plan, para que heard() no la trate otra vez.
+  function pickReco(r, viaVoice) {
+    if (!r) return false;
+    if (!viaVoice) record({ type: 'reco_click', role: 'user', text: r.title, topic: r.key, page_url: r.page_url || location.href, reason: 'recommendation button' });
     var f = r.page_url ? featureForUrl(r.page_url) : null;
     if (f) {
       var st = cur();
-      if (st && st.id === f.id) { highlight(st); return; }
+      if (st && st.id === f.id) { highlight(st); return true; }
       var ins = insertNext(f);
       var change = T('Plan changed: you picked ' + r.title + ', so we go to ' + f.name, 'Plan cambiado: has elegido ' + r.title + ', así que vamos a ' + f.name);
       record({ type: 'replan', role: 'agent', text: change, page_id: f.id, reason: 'recommendation ' + r.key });
       el.extra = { change: change };
-      return go(ins, 'recommendation ' + r.key);
+      go(ins, 'recommendation ' + r.key);
+      return true;
     }
-    if (r.page_url) location.href = r.page_url;
+    if (r.page_url && !viaVoice) { location.href = r.page_url; return true; }
+    return false;
   }
   function matchReco(text) {
     var t = norm(text), rc = S.recos || [];
@@ -367,7 +371,10 @@
   function heard(text, source) {
     record({ type: 'utterance', role: 'user', text: text, reason: source, source: 'widget-' + source });
     var ri = matchReco(text);
-    if (ri) record({ type: 'reco_idea', role: 'user', text: text, topic: ri.key, page_url: ri.page_url || null, reason: 'said a recommendation (' + source + ')' });
+    if (ri) {
+      record({ type: 'reco_idea', role: 'user', text: text, topic: ri.key, page_url: ri.page_url || null, reason: 'said a recommendation (' + source + ')' });
+      if (pickReco(ri, true)) return;   // decirla = pulsarla
+    }
     var t = norm(text);
     if (/^(next|siguiente|sigue|continua|continue|vale|ok)\b/.test(t)) { render({}); return next(); }
     var r = rank(text), top = r[0], st = cur();
