@@ -4,12 +4,15 @@
 # Press Enter with nothing to reuse the value already in .env.
 cd "$(dirname "$0")/.." || exit 1
 touch .env && chmod 600 .env
-for n in "$@"; do
+for spec in "$@"; do
+  IFS=, read -ra names <<< "$spec"; n=${names[0]}
   read -rsp "Pega $n (Enter vacio = usar el de .env): " v; echo
   if [ -z "$v" ]; then v=$(grep "^$n=" .env | head -1 | cut -d= -f2-); fi
   [ -z "$v" ] && { echo "  $n vacio, lo salto"; continue; }
-  grep -v "^$n=" .env > .env.tmp; mv .env.tmp .env; printf '%s=%s\n' "$n" "$v" >> .env
-  printf '%s' "$v" | npx -y vercel@latest env add "$n" production --force >/dev/null 2>&1 && echo "  $n guardada en .env y en Vercel" || echo "  $n guardada en .env; Vercel fallo"
+  for n in "${names[@]}"; do
+    grep -v "^$n=" .env > .env.tmp; mv .env.tmp .env; printf '%s=%s\n' "$n" "$v" >> .env
+    printf '%s' "$v" | npx -y vercel@latest env add "$n" production --force >/dev/null 2>&1 && echo "  $n guardada en .env y en Vercel (${#v} caracteres)" || echo "  $n guardada en .env; Vercel fallo"
+  done
 done
 unset v
 echo "Listo. Avisa a Claude para que vuelva a desplegar."
