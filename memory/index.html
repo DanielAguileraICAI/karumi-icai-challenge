@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Karumi · Recomendaciones</title>
+<style>
+body{font:16px/1.5 system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;color:#111}
+input,select,button{font:inherit;padding:.5rem .7rem;border:1px solid #bbb;border-radius:6px}
+button{cursor:pointer;background:#111;color:#fff;border-color:#111}
+.row{display:flex;gap:.5rem;flex-wrap:wrap;margin:.5rem 0}.row input{flex:1;min-width:200px}
+.reco{display:block;width:100%;text-align:left;background:#fff;color:#111;border-color:#ddd;margin:.4rem 0;padding:.8rem}
+.reco b{display:block}.reco span{color:#555;font-size:.9rem}.reco.on{border-color:#d33;background:#fff4f4}
+small{color:#666}
+</style></head><body>
+<h1>¿Qué te interesa de esta web?</h1>
+<div class="row"><input id="url" placeholder="https://producto.com"><select id="buyer">
+<option value="cfo">CFO</option><option value="hr">RR.HH.</option><option value="it">IT / CTO</option><option value="manager">Manager</option><option value="general">General</option></select>
+<button id="go">Recomendar</button></div>
+<div id="out"></div>
+<div id="idea" hidden><div class="row"><input id="ideaText" placeholder="Dile algo al agente: me interesa más…"><button id="send">Enviar idea</button></div></div>
+<small id="st"></small>
+<script>
+const P=new URLSearchParams(location.search), API=P.get('api')||'', MEM=P.get('memory')||API+'/api/memory';
+const sid=(crypto.randomUUID&&crypto.randomUUID())||String(Date.now()), $=id=>document.getElementById(id);
+let ctx={};
+const log=(type,x={})=>{const s={session_id:sid,ts:new Date().toISOString(),product_url:ctx.url,buyer_type:ctx.buyer,type,source:'reco-ui',...x};
+  window.dispatchEvent(new CustomEvent('karumi:step',{detail:s}));
+  fetch(MEM,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(s)}).catch(()=>{});};
+$('url').value=P.get('url')||'';
+$('go').onclick=async()=>{
+  ctx={url:$('url').value.trim(),buyer:$('buyer').value}; $('st').textContent='Analizando la web…'; $('out').innerHTML='';
+  try{
+    const r=await fetch(`${API}/api/recommend?url=${encodeURIComponent(ctx.url)}&buyer=${ctx.buyer}&session=${sid}`); const j=await r.json();
+    if(!r.ok) throw new Error(j.error);
+    ctx.url=j.product_url; $('st').textContent=`Recomendaciones (${j.source})`; $('idea').hidden=false;
+    j.recommendations.forEach(rc=>{const b=document.createElement('button');b.className='reco';
+      b.innerHTML=`<b></b><span></span>`;b.firstChild.textContent=rc.title;b.lastChild.textContent=rc.why||'';
+      b.onclick=()=>{b.classList.add('on');log('reco_click',{text:rc.title,topic:rc.key,page_url:rc.page_url,reason:rc.why});
+        window.dispatchEvent(new CustomEvent('karumi:reco',{detail:rc}));};
+      $('out').appendChild(b); log('reco_shown',{text:rc.title,topic:rc.key});});
+  }catch(e){$('st').textContent='Error: '+e.message;}
+};
+$('send').onclick=()=>{const t=$('ideaText').value.trim(); if(!t)return; log('reco_idea',{role:'user',text:t}); $('ideaText').value=''; $('st').textContent='Idea guardada';};
+</script></body></html>
