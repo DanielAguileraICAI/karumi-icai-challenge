@@ -694,6 +694,15 @@
       if (!S.features) S.features = [];
       if (S.stepIndex == null) S.stepIndex = 0;
       rec = setupRec();
+      if (window.__nsAutostart) {
+        // Started from the agent web: the click was the gesture. Product in the in-call frame, voice guide on.
+        S.autovoiceDone = true; S.stepIndex = 0; S.visited = []; S.rtOn = false; save();
+        mount();
+        var first = steps()[0];
+        if (first) frameGo(pathOf(first), function () { highlight(cur()); });
+        setMode('voice');
+        return;
+      }
       if (S.autovoice && !S.autovoiceDone && window.RTCPeerConnection && !S.rtOn) startOverlay();
       if (S.rtOn) { talkOn = true; startRT().catch(function () { S.rtOn = false; save(); rtQueue = []; talkOn = false; render(); }); }
       mount();

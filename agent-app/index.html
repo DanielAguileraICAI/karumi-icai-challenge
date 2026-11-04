@@ -275,7 +275,11 @@ function startLive(p, plan){
   const live = {profile: p, plan, features, base: base().replace(/^\.\.\//, "/"), stepIndex: 0, journey: [], autovoice: true, memory: localStorage.getItem("nextstep.memory") || null};
   if (!live.base.startsWith("/") && !live.base.startsWith("http")) live.base = "/" + live.base;
   localStorage.setItem("nextstep.live", JSON.stringify(live));
-  window.open(live.base + plan.steps[0].screen, "_blank");
+  // The click on this button is the gesture Chrome needs for mic and audio: the voice guide starts right here and
+  // shows the product inside the call (no new tab, no second tap). Without WebRTC it opens the product as before.
+  if (!window.RTCPeerConnection || window.__nsWidget) { window.open(live.base + plan.steps[0].screen, "_blank"); return; }
+  window.__nsAutostart = true;
+  const s = document.createElement("script"); s.src = "/widget/widget.js"; document.body.appendChild(s);
 }
 function compareAll(){
   if(!schema) return;
