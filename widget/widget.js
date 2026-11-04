@@ -146,7 +146,7 @@
       if (why.length) h += '<div class="ns-chips">' + why.map(function (w) { return '<span class="ns-chip">' + esc(w) + '</span>'; }).join('') + '</div>';
     }
     h += '<div class="ns-btns"><button class="ns-btn ns-next" type="button">' + (done ? T('Restart', 'Reiniciar') : (S.stepIndex + 1 >= n ? T('Finish', 'Terminar') : T('Next', 'Siguiente'))) + '</button>' +
-      (rec ? '<button class="ns-btn ns-alt ns-talk' + (talkOn ? ' ns-on' : '') + '" type="button">' + (talkOn ? T('Stop', 'Parar') : T('Talk', 'Hablar')) + '</button>' : '') + '</div>';
+      (rec || window.RTCPeerConnection ? '<button class="ns-btn ns-alt ns-talk' + (talkOn ? ' ns-on' : '') + '" type="button">' + (talkOn ? T('Stop', 'Parar') : T('Talk', 'Hablar')) + '</button>' : '') + '</div>';
     h += '<form class="ns-form"><input class="ns-in" placeholder="' + T('Ask or type a topic', 'Pregunta o escribe un tema') + '"><button class="ns-btn ns-alt" style="flex:0 0 auto" type="submit">' + T('Send', 'Enviar') + '</button></form>';
     h += '<ol class="ns-route">' + steps().map(function (s, i) {
       var mark = i === S.stepIndex ? '&#9679;' : (visited.indexOf(s.id) >= 0 || i < S.stepIndex ? '&#10003;' : '');
@@ -162,8 +162,46 @@
     });
   }
 
+  /* ---------- OpenAI Realtime voice (falls back to browser speech) ---------- */
+  var RT = null, rtQueue = [];
+  function rtSpeak(text) {
+    if (!RT || !RT.ready) { rtQueue.push(text); return; }
+    RT.send({ type: 'response.cancel' });
+    RT.send({ type: 'response.create', response: { instructions: 'Say this to the visitor, naturally and warmly, in ' + (lang() === 'es' ? 'Spanish from Spain' : 'English') + ', without adding anything: ' + text } });
+  }
+  function startRT() {
+    return fetch('/api/session', { method: 'POST' }).then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || r.status); }); }).then(function (j) {
+      var pc = new RTCPeerConnection(), audio = new Audio(); audio.autoplay = true;
+      document.addEventListener('pointerdown', function () { try { audio.play(); } catch (e) {} }, true);
+      pc.ontrack = function (e) { audio.srcObject = e.streams[0]; };
+      var dc = pc.createDataChannel('oai-events');
+      var rt = { pc: pc, dc: dc, ready: false, send: function (o) { if (dc.readyState === 'open') dc.send(JSON.stringify(o)); } };
+      dc.onopen = function () {
+        rt.send({ type: 'session.update', session: { type: 'realtime', instructions: 'You are the voice of a product demo guide. Only speak the exact lines you are given in response instructions.', audio: { input: { transcription: { model: 'gpt-4o-mini-transcribe' }, turn_detection: { type: 'server_vad', silence_duration_ms: 600, create_response: false } } } } });
+        rt.ready = true; var q = rtQueue; rtQueue = []; q.forEach(rtSpeak);
+      };
+      dc.onmessage = function (ev) {
+        var m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+        if (m.type === 'conversation.item.input_audio_transcription.completed' && m.transcript && m.transcript.trim()) heard(m.transcript.trim(), 'voice');
+        if (m.type === 'input_audio_buffer.speech_started') { listening = true; setLive(); rt.send({ type: 'response.cancel' }); }
+        if (m.type === 'input_audio_buffer.speech_stopped') { listening = false; setLive(); }
+        if (m.type === 'error' && m.error && !/no active response/i.test(m.error.message || '')) console.warn('[realtime]', m.error.message);
+      };
+      return navigator.mediaDevices.getUserMedia({ audio: true }).then(function (mic) {
+        rt.mic = mic; pc.addTrack(mic.getTracks()[0]);
+        return pc.createOffer();
+      }).then(function (offer) { return pc.setLocalDescription(offer).then(function () {
+        return fetch('https://api.openai.com/v1/realtime/calls', { method: 'POST', body: offer.sdp, headers: { Authorization: 'Bearer ' + j.value, 'Content-Type': 'application/sdp' } });
+      }); }).then(function (r) { if (!r.ok) throw new Error('webrtc ' + r.status); return r.text(); })
+        .then(function (sdp) { return pc.setRemoteDescription({ type: 'answer', sdp: sdp }); })
+        .then(function () { RT = rt; return rt; });
+    });
+  }
+  function stopRT() { if (!RT) return; try { RT.mic.getTracks().forEach(function (t) { t.stop(); }); RT.pc.close(); } catch (e) {} RT = null; }
+
   /* ---------- voice ---------- */
   function say(text) {
+    if (text && (RT || (S && S.rtOn))) { rtSpeak(text); return; }
     if (!text || !window.speechSynthesis) return;
     try {
       speechSynthesis.cancel();
@@ -193,7 +231,12 @@
   function listen() { if (!rec || !talkOn || listening || speaking) return; try { rec.lang = lang() === 'es' ? 'es-ES' : 'en-US'; rec.start(); } catch (e) {} }
   function toggleTalk() {
     talkOn = !talkOn;
-    if (talkOn) { if (window.speechSynthesis) speechSynthesis.cancel(); speaking = false; listen(); } else { try { rec.stop(); } catch (e) {} }
+    if (talkOn) {
+      if (window.speechSynthesis) speechSynthesis.cancel(); speaking = false;
+      S.rtOn = true; save();
+      startRT().then(function () { record({ type: 'mic', role: 'agent', text: 'openai realtime on', reason: 'voice' }); var st = cur(); if (st) say(st.say); })
+        .catch(function (e) { console.warn('[realtime] fallback to browser voice:', e && e.message); S.rtOn = false; save(); rtQueue = []; listen(); });
+    } else { S.rtOn = false; save(); stopRT(); try { rec.stop(); } catch (e) {} }
     record({ type: 'mic', role: 'user', text: talkOn ? 'mic on' : 'mic off', reason: 'talk button' });
     render();
   }
@@ -291,6 +334,7 @@
       if (!S.features) S.features = [];
       if (S.stepIndex == null) S.stepIndex = 0;
       rec = setupRec();
+      if (S.rtOn) { talkOn = true; startRT().catch(function () { S.rtOn = false; save(); rtQueue = []; talkOn = false; render(); }); }
       mount();
       var i = matchStepIndex();
       if (i >= 0) {
