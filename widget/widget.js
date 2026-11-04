@@ -179,7 +179,7 @@
       if (why.length) h += '<div class="ns-chips">' + why.map(function (w) { return '<span class="ns-chip">' + esc(w) + '</span>'; }).join('') + '</div>';
     }
     h += '<div class="ns-btns"><button class="ns-btn ns-next" type="button">' + (done ? T('Restart', 'Reiniciar') : (S.stepIndex + 1 >= n ? T('Finish', 'Terminar') : T('Next', 'Siguiente'))) + '</button>' +
-      (rec ? '<button class="ns-btn ns-alt ns-talk' + (talkOn ? ' ns-on' : '') + '" type="button">' + (talkOn ? T('Stop', 'Parar') : T('Talk', 'Hablar')) + '</button>' : '') + '</div>';
+      (rec || window.RTCPeerConnection ? '<button class="ns-btn ns-alt ns-talk' + (talkOn ? ' ns-on' : '') + '" type="button">' + (talkOn ? T('Stop', 'Parar') : T('Talk', 'Hablar')) + '</button>' : '') + '</div>';
     h += '<form class="ns-form"><input class="ns-in" placeholder="' + T('Ask or type a topic', 'Pregunta o escribe un tema') + '"><button class="ns-btn ns-alt" style="flex:0 0 auto" type="submit">' + T('Send', 'Enviar') + '</button></form>';
     var rc = (S.recos || []).slice(0, 4);
     if (rc.length) h += '<div class="ns-recos"><div class="ns-mod">' + T('You may also want to see', 'También te puede interesar') + '</div>' + rc.map(function (r, i) {
@@ -317,8 +317,105 @@
     return null;
   }
 
+  /* ---------- OpenAI Realtime voice: the model is the live brain (tools drive the demo) ---------- */
+  var RT = null, rtQueue = [], DBG = /rtdebug/.test(location.search) || localStorage.getItem('nextstep.rtdebug');
+  function rtLog() { if (DBG) console.log.apply(console, ['[realtime]'].concat([].slice.call(arguments))); }
+  function rtContext() {
+    var pr = S.profile || {}, st = cur();
+    var feats = (S.features || []).map(function (f) { return '- ' + f.id + ': ' + f.name + ' (' + (f.module || '') + '): ' + (f.does || '') + (f.proof ? ' Proof: ' + f.proof : ''); }).join('\n');
+    var plan = steps().map(function (s, i) { return (i === S.stepIndex ? '>> ' : '   ') + (i + 1) + '. ' + s.id + ' ' + s.name; }).join('\n');
+    var hist = (S.rtHist || []).slice(-8).map(function (h) { return h.r + ': ' + h.t; }).join('\n');
+    return 'You are the live demo guide for the product shown on screen (Kestrel). You talk with a ' + (pr.title || pr.role || 'visitor') + (pr.company ? ' from ' + pr.company : '') + (pr.sector ? ' (' + pr.sector + ')' : '') + '.\n' +
+      'Speak ' + (lang() === 'es' ? 'Spanish from Spain' : 'English') + '. Be brief: max 2 short sentences, then a short question.\n' +
+      'The principle: what to show FIRST is recalculated after everything the visitor says.\n' +
+      'Rules: if what the visitor says is better answered by another feature than the current one, call show_feature with its id (do not just describe it). If they want to continue, call next_step. If the current screen already answers, explain it using its facts. Never invent features, prices or numbers that are not listed.\n' +
+      'Features:\n' + feats + '\nCurrent plan (>> is on screen now):\n' + plan + (st ? '\nOn screen now: ' + st.name + ': ' + (st.say || '') : '') + (hist ? '\nConversation so far:\n' + hist : '');
+  }
+  var RT_TOOLS = [
+    { type: 'function', name: 'show_feature', description: 'Change the plan and take the visitor to the screen of this feature now.', parameters: { type: 'object', properties: { feature_id: { type: 'string' }, reason: { type: 'string', description: 'short reason, in the visitor language' } }, required: ['feature_id'] } },
+    { type: 'function', name: 'next_step', description: 'Go to the next step of the plan.', parameters: { type: 'object', properties: {} } }
+  ];
+  function hist(r, t) { S.rtHist = (S.rtHist || []).concat([{ r: r, t: String(t).slice(0, 300) }]).slice(-12); save(); }
+  function rtSpeak(text) {
+    // Narration of a newly opened screen: the model presents it in its own words.
+    if (!RT || !RT.ready) { rtQueue.push(text); return; }
+    RT.send({ type: 'response.create', response: { instructions: 'The screen just changed. Present it briefly, in your own words, based on: ' + text + '. Then ask one short question.' } });
+  }
+  function rtTool(name, args, callId) {
+    var out = { ok: true };
+    if (name === 'show_feature') {
+      var f = (S.features || []).filter(function (x) { return x.id === args.feature_id; })[0];
+      if (!f) out = { ok: false, error: 'unknown feature id' };
+      else {
+        var st = cur();
+        if (st && st.id === f.id) { highlight(st); out = { ok: true, note: 'already on screen' }; }
+        else {
+          var ins = insertNext(f);
+          var change = T('Plan changed: next is ' + f.name, 'Plan cambiado: lo siguiente es ' + f.name) + (args.reason ? ' (' + args.reason + ')' : '');
+          record({ type: 'replan', role: 'agent', text: change, page_id: f.id, reason: 'llm: ' + (args.reason || '') , source: 'widget-llm' });
+          el.extra = { change: change };
+          out = { ok: true, navigating_to: f.name };
+          RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(out) } });
+          setTimeout(function () { go(ins, 'llm: ' + (args.reason || f.name)); }, 150);
+          return;
+        }
+      }
+    } else if (name === 'next_step') {
+      RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: '{"ok":true}' } });
+      setTimeout(next, 150); return;
+    }
+    RT.send({ type: 'conversation.item.create', item: { type: 'function_call_output', call_id: callId, output: JSON.stringify(out) } });
+    RT.send({ type: 'response.create' });
+  }
+  function startRT() {
+    return fetch('/api/session', { method: 'POST' }).then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw new Error(j.error || r.status); }); }).then(function (j) {
+      var pc = new RTCPeerConnection(), audio = new Audio(); audio.autoplay = true;
+      document.addEventListener('pointerdown', function () { try { audio.play(); } catch (e) {} }, true);
+      pc.ontrack = function (e) { audio.srcObject = e.streams[0]; };
+      var dc = pc.createDataChannel('oai-events');
+      var rt = { pc: pc, dc: dc, ready: false, send: function (o) { if (dc.readyState === 'open') { rtLog('>>', o.type); dc.send(JSON.stringify(o)); } } };
+      var done = {};
+      dc.onopen = function () {
+        rt.send({ type: 'session.update', session: { type: 'realtime', instructions: rtContext(), tools: RT_TOOLS, tool_choice: 'auto',
+          audio: { input: { noise_reduction: { type: 'far_field' }, transcription: { model: 'gpt-4o-mini-transcribe', language: lang() },
+            turn_detection: { type: 'semantic_vad', eagerness: 'low', create_response: true, interrupt_response: false } } } } });
+        rt.ready = true; var q = rtQueue; rtQueue = []; q.slice(-1).forEach(rtSpeak);
+      };
+      dc.onmessage = function (ev) {
+        var m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+        rtLog('<<', m.type, m.type === 'error' ? m.error : '');
+        if (m.type === 'conversation.item.input_audio_transcription.completed' && m.transcript && m.transcript.trim()) {
+          var t = m.transcript.trim(); hist('visitor', t);
+          record({ type: 'utterance', role: 'user', text: t, reason: 'voice', source: 'widget-realtime' });
+          el.extra = { reply: '🗣 ' + t }; if (open) render(el.extra);
+        }
+        if (m.type === 'response.output_audio_transcript.done' && m.transcript) { hist('agent', m.transcript); record({ type: 'reply', role: 'agent', text: m.transcript, source: 'widget-realtime' }); }
+        if (m.type === 'response.function_call_arguments.done' && !done[m.call_id]) {
+          done[m.call_id] = 1; var args = {}; try { args = JSON.parse(m.arguments || '{}'); } catch (e) {}
+          rtLog('tool', m.name, args); rtTool(m.name, args, m.call_id);
+        }
+        if (m.type === 'input_audio_buffer.speech_started') { listening = true; setLive(); }
+        if (m.type === 'input_audio_buffer.speech_stopped') { listening = false; setLive(); }
+        if (m.type === 'output_audio_buffer.started') { speaking = true; setLive(); }
+        if (m.type === 'output_audio_buffer.stopped') { speaking = false; setLive(); }
+        if (m.type === 'error') console.warn('[realtime] error:', m.error && m.error.message);
+      };
+      pc.onconnectionstatechange = function () { rtLog('pc', pc.connectionState); if (pc.connectionState === 'failed') console.warn('[realtime] connection failed'); };
+      return navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } }).then(function (mic) {
+        rt.mic = mic; pc.addTrack(mic.getTracks()[0]);
+        return pc.createOffer();
+      }).then(function (offer) { return pc.setLocalDescription(offer).then(function () {
+        return fetch('https://api.openai.com/v1/realtime/calls', { method: 'POST', body: offer.sdp, headers: { Authorization: 'Bearer ' + j.value, 'Content-Type': 'application/sdp' } });
+      }); }).then(function (r) { if (!r.ok) return r.text().then(function (t) { throw new Error('webrtc ' + r.status + ' ' + t.slice(0, 200)); }); return r.text(); })
+        .then(function (sdp) { return pc.setRemoteDescription({ type: 'answer', sdp: sdp }); })
+        .then(function () { RT = rt; console.info('[realtime] connected (OpenAI). Debug: add ?rtdebug=1'); return rt; });
+    });
+  }
+  function stopRT() { if (!RT) return; try { RT.mic.getTracks().forEach(function (t) { t.stop(); }); RT.pc.close(); } catch (e) {} RT = null; }
+
   /* ---------- voice ---------- */
   function say(text) {
+    if (text && (RT || (S && S.rtOn))) { if (isVoice()) { vCap = text; render(); } rtSpeak(text); return; }
     if (isVoice() && text) { vCap = text; clearTimeout(vTimer); if (rec && listening) try { rec.stop(); } catch (e) {} render(); }
     if (text && isVoice() && !window.speechSynthesis) { vTimer = setTimeout(vAfter, Math.min(12000, 1500 + text.length * 55)); return; }
     if (!text || !window.speechSynthesis) return;
@@ -351,7 +448,12 @@
   function listen() { if (!rec || !talkOn || listening || speaking) return; try { rec.lang = lang() === 'es' ? 'es-ES' : 'en-US'; rec.start(); } catch (e) {} }
   function toggleTalk() {
     talkOn = !talkOn;
-    if (talkOn) { if (window.speechSynthesis) speechSynthesis.cancel(); speaking = false; listen(); } else { try { rec.stop(); } catch (e) {} }
+    if (talkOn) {
+      if (window.speechSynthesis) speechSynthesis.cancel(); speaking = false;
+      S.rtOn = true; save();
+      startRT().then(function () { record({ type: 'mic', role: 'agent', text: 'openai realtime on', reason: 'voice' }); var st = cur(); if (st) say(st.say); })
+        .catch(function (e) { console.warn('[realtime] fallback to browser voice:', e && e.message); S.rtOn = false; save(); rtQueue = []; listen(); });
+    } else { S.rtOn = false; save(); stopRT(); try { rec.stop(); } catch (e) {} }
     record({ type: 'mic', role: 'user', text: talkOn ? 'mic on' : 'mic off', reason: 'talk button' });
     render();
   }
@@ -411,6 +513,7 @@
       why: [T('You asked about it', 'Lo has pedido')], say: f.does + '. ' + f.proof + '.', check: null, role: 'core' };
   }
   function heard(text, source) {
+    if (RT && RT.ready && source === 'typed') { hist('visitor', text); record({ type: 'utterance', role: 'user', text: text, reason: 'typed', source: 'widget-realtime' }); RT.send({ type: 'conversation.item.create', item: { type: 'message', role: 'user', content: [{ type: 'input_text', text: text }] } }); RT.send({ type: 'response.create' }); return; }
     record({ type: 'utterance', role: 'user', text: text, reason: source, source: 'widget-' + source });
     var ri = matchReco(text);
     if (ri) record({ type: 'reco_idea', role: 'user', text: text, topic: ri.key, page_url: ri.page_url || null, reason: 'said a recommendation (' + source + ')' });
@@ -452,6 +555,7 @@
       if (!S.features) S.features = [];
       if (S.stepIndex == null) S.stepIndex = 0;
       rec = setupRec();
+      if (S.rtOn) { talkOn = true; startRT().catch(function () { S.rtOn = false; save(); rtQueue = []; talkOn = false; render(); }); }
       mount();
       var i = matchStepIndex();
       if (i >= 0) {
