@@ -272,7 +272,7 @@ async function render(p){
 }
 function startLive(p, plan){
   const features = schema.features.map(f => ({...f, score: scoreFeature(f, p).score}));
-  const live = {profile: p, plan, features, base: base().replace(/^\.\.\//, "/"), stepIndex: 0, journey: [], memory: localStorage.getItem("nextstep.memory") || null};
+  const live = {profile: p, plan, features, base: base().replace(/^\.\.\//, "/"), stepIndex: 0, journey: [], autovoice: true, memory: localStorage.getItem("nextstep.memory") || null};
   if (!live.base.startsWith("/") && !live.base.startsWith("http")) live.base = "/" + live.base;
   localStorage.setItem("nextstep.live", JSON.stringify(live));
   window.open(live.base + plan.steps[0].screen, "_blank");

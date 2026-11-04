@@ -343,6 +343,18 @@
     return null;
   }
 
+  /* ---------- one tap to start: the browser needs a gesture before audio and mic ---------- */
+  function startOverlay() {
+    var ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;background:rgba(10,10,10,.55);backdrop-filter:blur(3px)';
+    var pr = S.profile || {};
+    ov.innerHTML = '<button type="button" style="font:600 22px/1.2 system-ui,sans-serif;padding:22px 34px;border-radius:999px;border:0;background:#111;color:#fff;box-shadow:0 18px 50px rgba(0,0,0,.4);cursor:pointer">&#9654; ' +
+      T('Start the demo', 'Empezar la demo') + '<small style="display:block;font-weight:400;font-size:13px;opacity:.75;margin-top:6px">' +
+      esc((pr.name ? pr.name + ' · ' : '') + T('the guide will talk with you', 'la guía hablará contigo')) + '</small></button>';
+    ov.querySelector('button').onclick = function () { S.autovoiceDone = true; save(); ov.remove(); setMode('voice'); };
+    document.body.appendChild(ov);
+  }
+
   /* ---------- in-call frame: navigating never cuts the call (idea from Kali) ---------- */
   var FRAME = null;
   function D() { try { return FRAME && FRAME.contentDocument && FRAME.contentDocument.body ? FRAME.contentDocument : document; } catch (e) { return document; } }
@@ -682,6 +694,7 @@
       if (!S.features) S.features = [];
       if (S.stepIndex == null) S.stepIndex = 0;
       rec = setupRec();
+      if (S.autovoice && !S.autovoiceDone && window.RTCPeerConnection && !S.rtOn) startOverlay();
       if (S.rtOn) { talkOn = true; startRT().catch(function () { S.rtOn = false; save(); rtQueue = []; talkOn = false; render(); }); }
       mount();
       var i = matchStepIndex();
