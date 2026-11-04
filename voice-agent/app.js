@@ -8,7 +8,10 @@ const API = (window.KARUMI_API_BASE ?? params.get('api') ?? '').replace(/\/$/, '
 const MEMORY_URL = window.KARUMI_MEMORY_URL || params.get('memory') || '';   // Claudia's memory endpoint (optional)
 const LANG = params.get('lang') || 'es-ES';
 
-const S = { plan: null, cur: null, visited: [], journey: [], sessionId: crypto.randomUUID(), rt: null, rec: null, live: false, loadWaiters: [] };
+let M = null; // memory module (memory.js), optional
+import('./memory.js').then(m => { M = m; m.configure?.({ apiBase: API }); }).catch(() => {});
+
+const S = { buyer: '', demos: [], plan: null, cur: null, visited: [], journey: [], sessionId: crypto.randomUUID(), rt: null, rec: null, live: false, loadWaiters: [] };
 
 // ---------- UI helpers ----------
 function log(role, text) {
@@ -17,6 +20,9 @@ function log(role, text) {
   $('#log').append(d); $('#log').scrollTop = 1e9;
 }
 const pageById = id => S.plan?.pages.find(p => p.id === id);
+function likelyNext() {
+  try { const id = M?.predictNext?.(S.buyer, S.plan.url, S.cur); const id2 = typeof id === 'object' && id ? id.page_id : id; const p = id2 && pageById(id2); return p && !S.visited.includes(p.id) ? p : null; } catch { return null; }
+}
 function renderRoute(nextId) {
   const ol = $('#route'); ol.innerHTML = '';
   // Visited pages first, in the order the conversation chose them, then the rest of the plan.
@@ -34,7 +40,8 @@ function renderRoute(nextId) {
 
 // ---------- Journey (contract for Claudia's memory) ----------
 function record(step) {
-  const s = { session_id: S.sessionId, ts: new Date().toISOString(), product_url: S.plan?.url, ...step };
+  const s = { session_id: S.sessionId, ts: new Date().toISOString(), product_url: S.plan?.url, buyer: S.buyer, ...step };
+  try { M?.remember?.(s); } catch {}
   S.journey.push(s);
   try {
     const all = JSON.parse(localStorage.getItem('karumi.journeys') || '[]'); all.push(s);
@@ -82,7 +89,9 @@ async function navigate(id, reason = '', source = 'agent', utterance = '') {
   log('sys', `→ ${p.title}${reason ? ' · ' + reason : ''}`);
   record({ type: 'navigate', page_id: id, page_url: p.url, page_title: p.title, reason, source, utterance });
   await showUrl(p.url);
-  return { ok: true, page: p.title, url: p.url, on_screen_text: visibleText() };
+  const nx = likelyNext();
+  if (nx) renderRoute(nx.id);
+  return { ok: true, page: p.title, url: p.url, why_for_this_buyer: p.why, talking_points: p.talking_points, on_screen_text: visibleText(), likely_next: nx ? { page_id: nx.id, title: nx.title, because: 'otros visitantes parecidos fueron ahí después' } : undefined };
 }
 function highlight(text) {
   let doc; try { doc = frame.contentDocument; } catch { return { ok: false, error: 'cross-origin' }; }
@@ -151,8 +160,10 @@ const TOOLS = [
   { type: 'function', name: 'scroll', description: 'Scroll the current page up or down.', parameters: { type: 'object', properties: { direction: { type: 'string', enum: ['up', 'down'] } }, required: ['direction'] } },
 ];
 function instructions() {
-  const pages = S.plan.pages.map(p => `- ${p.id}: ${p.title} | ${p.url}\n  ${(p.summary || '').slice(0, 260)}`).join('\n');
-  return `Eres el agente de demo en vivo de "${S.plan.product}". Estás en una llamada de voz con un visitante y controlas la pantalla que está viendo.
+  const pages = S.plan.pages.map(p => `- ${p.id}: ${p.title} | ${p.url}\n  ${(p.summary || '').slice(0, 260)}${p.why ? `\n  por qué para este buyer: ${p.why}` : ''}`).join('\n');
+  let mem = ''; try { mem = M?.summaryText?.(S.buyer, S.plan.url) || ''; } catch {}
+  const ctx = [S.buyer && `Tipo de buyer declarado: ${S.buyer}.`, S.plan.opening && `Apertura sugerida: ${S.plan.opening}`, S.plan.buyer_ideas?.length && `Lo que probablemente le importa: ${S.plan.buyer_ideas.join('; ')}.`, mem && `Memoria de visitantes parecidos: ${mem}. Anticípate: si encaja, llévale ahí antes de que lo pida.`].filter(Boolean).join('\n');
+  return `${ctx}\nEres el agente de demo en vivo de "${S.plan.product}". Estás en una llamada de voz con un visitante y controlas la pantalla que está viendo.
 Principio: "lo primero que enseñar" no es fijo; se recalcula después de CADA cosa que dice el visitante.
 Reglas:
 1. Tras cada frase del visitante, decide qué página responde mejor a lo que acaba de decir. Si no es la actual, llama a navigate_to_page ANTES de hablar.
@@ -238,24 +249,76 @@ $('#say').onsubmit = e => {
   if (S.rt) { S.lastUser = t; log('user', t); record({ type: 'utterance', role: 'user', text: t, page_id: S.cur, typed: true }); S.rt.send({ type: 'conversation.item.create', item: { type: 'message', role: 'user', content: [{ type: 'input_text', text: t }] } }); S.rt.send({ type: 'response.create' }); }
   else fallbackTurn(t);
 };
-async function loadPlan(url) {
-  log('sys', 'Preparando mapa de ' + url + '…');
-  // Accept Dani's planner output directly: ?plan=<json url> or window.KARUMI_PLAN_URL
-  const planUrl = params.get('plan') || window.KARUMI_PLAN_URL;
-  const r = await fetch(planUrl ? planUrl : `${API}/api/map?url=${encodeURIComponent(url)}`);
-  const plan = await r.json();
-  if (!plan.pages?.length) throw new Error(plan.error || 'sin páginas');
+const DEFAULT_BUYERS = ['CFO', 'CTO', 'Head of Sales'];
+async function fetchPlans(url) {
+  const planUrl = params.get('plan') || window.KARUMI_PLAN_URL;   // Dani's planner output, if any
+  if (planUrl) {
+    // Template support for an external brain: ?plan=https://brain/api?url={url}&buyer={buyer}
+    const u = planUrl.replace('{url}', encodeURIComponent(url)).replace('{buyer}', encodeURIComponent(S.buyer || ''));
+    const p = await (await fetch(u)).json(); return (p.demos || [p]).map(d => ({ product: p.product, url: p.url || url, ...d }));
+  }
+  const buyers = [...new Set([S.buyer, ...DEFAULT_BUYERS].filter(Boolean))];
+  try {
+    const r = await fetch(`${API}/api/plan?url=${encodeURIComponent(url)}&buyers=${encodeURIComponent(buyers.join(','))}`);
+    if (r.ok) { const j = await r.json(); if (j.demos?.length) return j.demos.map(d => ({ product: j.product, url: j.url, ...d })); if (j.pages) return [j]; }
+  } catch {}
+  const j = await (await fetch(`${API}/api/map?url=${encodeURIComponent(url)}`)).json();
+  if (!j.pages?.length) throw new Error(j.error || 'sin páginas');
+  return [j];
+}
+function applyMemory(plan) {
+  // "Te preparo el camino antes de que lo pidas": pages that similar buyers asked for move to the front.
+  let sug; try { sug = M?.suggestPath?.(S.buyer, plan.url, { visited: [], exclude_session: S.sessionId }); } catch {}
+  const memo = $('#memory'); memo.innerHTML = '';
+  if (!sug?.path?.length) return plan;
+  const ids = new Set(); const pick = [];
+  for (const s of sug.path) { const p = plan.pages.find(x => x.id === s.page_id) || plan.pages.find(x => s.page_title && x.title === s.page_title); if (p && !ids.has(p.id)) { ids.add(p.id); pick.push(p); } }
+  const home = plan.pages[0];
+  plan.pages = [home, ...pick.filter(p => p !== home), ...plan.pages.filter(p => p !== home && !ids.has(p.id))];
+  let txt = ''; try { txt = M.summaryText(S.buyer, plan.url, { exclude_session: S.sessionId }); } catch {}
+  memo.innerHTML = `<b>Memoria:</b> ${txt || `${sug.sessions} sesiones parecidas`} → ruta preparada.`;
+  return plan;
+}
+function renderDemos() {
+  const box = $('#demos'); box.innerHTML = '';
+  if (S.demos.length < 2) return;
+  for (const d of S.demos) {
+    const b = document.createElement('button'); b.textContent = 'Demo · ' + (d.buyer || 'general');
+    b.className = d === S.plan ? 'on' : ''; b.onclick = () => startDemo(d); box.append(b);
+  }
+}
+async function startDemo(plan) {
+  if (plan.buyer) S.buyer = plan.buyer;
   plan.pages.forEach((p, i) => { p.id ||= 'p' + i; });
-  plan.pages.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
-  S.plan = plan; S.visited = []; S.journey = [];
+  if (plan.source !== 'plan') plan.pages.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
+  try { await M?.loadShared?.(plan.url); } catch {}
+  S.plan = applyMemory(plan); S.visited = []; S.cur = null;
+  renderDemos();
+  $('#ideas').innerHTML = (plan.opening || plan.buyer_ideas?.length) ? `<b>Demo para ${S.buyer || 'visitante'}:</b> ${plan.opening || ''}<ul>${(plan.buyer_ideas || []).map(i => `<li>${i}</li>`).join('')}</ul>` : '';
   record({ type: 'session_start', product: plan.product, plan_source: plan.source || 'external', pages: plan.pages.length });
-  log('sys', `${plan.pages.length} páginas de ${plan.product}. Pulsa el micro o escribe.`);
+  log('sys', `Demo para ${S.buyer || 'visitante'}: ${plan.pages.length} páginas. Pulsa el micro o escribe.`);
   $('#talk').disabled = false;
-  await navigate(plan.pages[0].id, 'punto de partida del plan', 'plan');
+  await navigate(S.plan.pages[0].id, 'punto de partida del plan', 'plan');
+}
+async function loadPlan(url) {
+  S.buyer = $('#buyer').value.trim();
+  log('sys', 'Preparando demos de ' + url + '…');
+  if (params.get('seed')) { try { const sd = await import('./memory.seed.js'); S._seed = sd; } catch {} }
+  S.demos = await fetchPlans(url);
+  const mine = S.demos.find(d => S.buyer && (d.buyer || '').toLowerCase() === S.buyer.toLowerCase()) || S.demos[0];
+  if (S._seed) { try { const byTitle = Object.fromEntries(mine.pages.map((p, i) => [p.title, p.id || 'p' + i])); S._seed.seedDemo(mine.url, byTitle); } catch (e) { console.warn(e); } }
+  await startDemo(mine);
 }
 $('#urlForm').onsubmit = async e => {
   e.preventDefault(); let u = $('#url').value.trim(); if (!u) return; if (!/^https?:/.test(u)) u = 'https://' + u;
   try { await loadPlan(u); } catch (err) { log('sys', 'Error: ' + err.message); }
 };
-if (params.get('url')) { $('#url').value = params.get('url'); $('#urlForm').requestSubmit(); }
+if (params.get('buyer')) $('#buyer').value = params.get('buyer');
+if (params.get('embed')) document.body.classList.add('embed');
+if (params.get('url')) {
+  $('#url').value = params.get('url');
+  loadPlan(params.get('url').startsWith('http') ? params.get('url') : 'https://' + params.get('url'))
+    .then(() => { if (params.get('autostart')) $('#talk').click(); })
+    .catch(err => log('sys', 'Error: ' + err.message));
+}
 window.KarumiDemo = { S, navigate, highlight, rank };

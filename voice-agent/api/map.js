@@ -15,11 +15,12 @@ function describe(html, url) {
 const STOP = new Set('the and for with your you our are from that this into más para con los las del una por que como sus nos tus'.split(' '));
 const keywords = s => [...new Set((s.toLowerCase().match(/[a-záéíóúñü]{4,}/g) || []).filter(w => !STOP.has(w)))].slice(0, 15);
 
-export default async function handler(req, res) {
-  const u = safeUrl(req.query.url);
-  if (!u) return res.status(400).json({ error: 'bad url' });
-  const max = Math.min(+req.query.max || 12, 25);
-  try {
+// Fetch homepage + same-site pages and return the plan object. Throws on bad url / fetch failure.
+export async function buildMap(url, max = 12) {
+  const u = safeUrl(url);
+  if (!u) { const e = new Error('bad url'); e.status = 400; throw e; }
+  max = Math.min(+max || 12, 25);
+  {
     const home = await fetchText(u.href, 8000);
     const base = new URL(home.finalUrl || u.href);
     const seen = new Set([base.href.split('#')[0]]);
@@ -55,9 +56,16 @@ export default async function handler(req, res) {
         score: i === 0 ? 1 : 0.5,
       })),
     };
+    return plan;
+  }
+}
+
+export default async function handler(req, res) {
+  try {
+    const plan = await buildMap(req.query.url, req.query.max);
     res.setHeader('Cache-Control', 's-maxage=600');
     return res.status(200).json(plan);
   } catch (e) {
-    return res.status(502).json({ error: String(e) });
+    return res.status(e.status || 502).json({ error: e.status === 400 ? 'bad url' : String(e) });
   }
 }

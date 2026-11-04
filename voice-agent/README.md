@@ -23,3 +23,9 @@ GitHub Pages solo sirve lo estático: ahí hace falta `?api=https://<deploy-verc
 
 ## Local
 `npm run dev` → http://localhost:5173 (`ALLOW_LOCAL=1` para probar contra webs en localhost).
+
+## Añadido: cerebro, memoria y widget
+- `api/plan.js` (cerebro): URL + buyer → demos por tipo de buyer (`?buyers=CFO,CTO,Ventas`), con `opening`, `buyer_ideas`, `why` y `talking_points`. Usa OpenAI si hay `OPENAI_API_KEY` (`PLAN_MODEL`) y, si no, heurística.
+- `memory.js` + `api/memory.js`: "empresa X pidió Y". Aprende qué rutas piden buyers parecidos, reordena la demo antes de que lo pidan y predice la siguiente página. Persistente si hay `KV_REST_API_URL`/`KV_REST_API_TOKEN`; si no, en memoria.
+- `?seed=1` carga 6 sesiones falsas (3 CFO, 3 CTO) para enseñar el aprendizaje en el pitch.
+- `widget.js`: botón flotante para cualquier página (ver INTEGRATION-DANI.md).

@@ -4,7 +4,7 @@ export function safeUrl(raw) {
   try { u = new URL(raw); } catch { return null; }
   if (!/^https?:$/.test(u.protocol)) return null;
   const h = u.hostname;
-  if (process.env.ALLOW_LOCAL) return u;
+  if (process.env.ALLOW_LOCAL) return u; // local testing only
   if (h === 'localhost' || h.endsWith('.local') || /^(127\.|10\.|192\.168\.|169\.254\.|0\.)/.test(h) || /^172\.(1[6-9]|2\d|3[01])\./.test(h) || h === '[::1]') return null;
   return u;
 }
