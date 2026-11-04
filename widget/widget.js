@@ -25,7 +25,7 @@
 
   function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
-  function lang() { return S && S.profile && S.profile.language === 'es' ? 'es' : 'en'; }
+  function lang() { return S && S.profile && S.profile.language === 'en' ? 'en' : 'es'; }
   function T(en, es) { return lang() === 'es' ? es : en; }
   function base() { return (S && S.base) || '/client-site/'; }
   function steps() { return S.plan.steps; }
@@ -214,11 +214,19 @@
   function renderVoice() {
     var root = el.root;
     if (!root.querySelector('.ns-voice')) {
-      root.innerHTML = '<div class="ns-voice"><div class="ns-big" role="button" tabindex="0" title="' + T('Click to see the plan', 'Clic para ver el plan') + '">' + agentDot(96) + '<span class="ns-tapw"></span></div></div>';
+      root.innerHTML = '<div class="ns-voice"><div class="ns-big" role="button" tabindex="0" title="' + T('Tap to pause or resume', 'Toca para pausar o seguir') + '">' + agentDot(96) + '<span class="ns-tapw"></span></div></div>';
       var big = root.querySelector('.ns-big');
-      big.onclick = function () { setMode('click'); open = true; render(); };
+      big.onclick = function () { vPaused ? vResume() : vPause(); };
       setTimeout(function () { placeDot(); }, 450);
     }
+    var rc = (S.recos || []).slice(0, 4), vr = root.querySelector('.ns-vrecos');
+    if (!vr) { vr = document.createElement('div'); vr.className = 'ns-vrecos'; vr.style.cssText = 'position:fixed;left:16px;bottom:16px;width:min(300px,calc(100vw - 32px));background:#fff;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:10px 12px;font:13px/1.35 system-ui,sans-serif;z-index:2'; root.appendChild(vr); }
+    if (rc.length) {
+      vr.style.display = '';
+      vr.innerHTML = '<div class="ns-mod" style="margin-bottom:6px;font-weight:700">' + T('You may also want to see', 'También te puede interesar') + '</div>' + rc.map(function (r, i) {
+        return '<button class="ns-reco" type="button" data-r="' + i + '">' + esc(r.title) + (r.why ? '<small style="display:block;font-weight:400;opacity:.75">' + esc(r.why) + '</small>' : '') + '</button>'; }).join('');
+      Array.prototype.forEach.call(vr.querySelectorAll('.ns-reco'), function (b) { b.onclick = function () { pickReco((S.recos || [])[+b.getAttribute('data-r')]); }; });
+    } else { vr.style.display = 'none'; loadRecos(); }
     root.querySelector('.ns-tapw').innerHTML = pendingSay ? '<span class="ns-tap">' + T('Tap to continue', 'Toca para seguir') + '</span>' : '';
     setLive();
   }
@@ -226,7 +234,7 @@
   function placeDot(t) {
     if (t) dotTarget = t;
     var big = el.root && el.root.querySelector('.ns-big'); if (!big) return;
-    var n = dotTarget && document.contains(dotTarget) ? dotTarget : (document.querySelector('.ns-tint') || document.querySelector('main h1, main h2') || null);
+    var d = D(), n = dotTarget && d.contains(dotTarget) ? dotTarget : (d.querySelector('.ns-tint') || d.querySelector('main h1, main h2') || null);
     var W = window.innerWidth, H = window.innerHeight, D = 96, x, y, lookRight = false;
     if (!n) { x = W - D - 34; y = H - D - 34; }
     else {
@@ -331,7 +339,7 @@
       el.extra = { change: change };
       return go(ins, 'recommendation ' + r.key);
     }
-    if (r.page_url) location.href = r.page_url;
+    if (r.page_url) { if (RT && RT.ready) frameGo(r.page_url); else location.href = r.page_url; }
   }
   function matchReco(text) {
     var t = norm(text), rc = S.recos || [];
@@ -344,14 +352,16 @@
   }
 
   /* ---------- one tap to start: the browser needs a gesture before audio and mic ---------- */
+  var OVERLAY = false;
   function startOverlay() {
+    OVERLAY = true;
     var ov = document.createElement('div');
     ov.style.cssText = 'position:fixed;inset:0;z-index:2147483646;display:flex;align-items:center;justify-content:center;background:rgba(10,10,10,.55);backdrop-filter:blur(3px)';
     var pr = S.profile || {};
     ov.innerHTML = '<button type="button" style="font:600 22px/1.2 system-ui,sans-serif;padding:22px 34px;border-radius:999px;border:0;background:#111;color:#fff;box-shadow:0 18px 50px rgba(0,0,0,.4);cursor:pointer">&#9654; ' +
       T('Start the demo', 'Empezar la demo') + '<small style="display:block;font-weight:400;font-size:13px;opacity:.75;margin-top:6px">' +
       esc((pr.name ? pr.name + ' · ' : '') + T('the guide will talk with you', 'la guía hablará contigo')) + '</small></button>';
-    ov.querySelector('button').onclick = function () { S.autovoiceDone = true; save(); ov.remove(); setMode('voice'); };
+    ov.querySelector('button').onclick = function () { OVERLAY = false; S.autovoiceDone = true; save(); ov.remove(); setMode('voice'); };
     document.body.appendChild(ov);
   }
 
@@ -622,7 +632,7 @@
     var st = cur(); el.extra = el.extra || {};
     if (!st) { render(); return; }
     S.visited = S.visited || []; if (S.visited.indexOf(st.id) < 0) S.visited.push(st.id); save();
-    if (isVoice()) { vCap = ''; render(); highlight(st); setTimeout(function () { placeDot(document.querySelector('.ns-tint') || document.querySelector('.ns-mark')); }, 650); if (!vPaused) setTimeout(function () { if (isVoice() && !vPaused) vSpeakCurrent(); }, 400); return; }
+    if (isVoice()) { vCap = ''; render(); highlight(st); setTimeout(function () { placeDot(D().querySelector('.ns-tint') || D().querySelector('.ns-mark')); }, 650); if (!vPaused && !OVERLAY) setTimeout(function () { if (isVoice() && !vPaused) vSpeakCurrent(); }, 400); return; }
     open = true; render();
     highlight(st);
     var pre = S.stepIndex === 0 && S.plan.opening && !S.openingDone ? S.plan.opening + ' ' : '';
@@ -703,7 +713,8 @@
         setMode('voice');
         return;
       }
-      if (S.autovoice && !S.autovoiceDone && window.RTCPeerConnection && !S.rtOn) startOverlay();
+      if (S.mode !== 'voice') { S.mode = 'voice'; save(); }
+      if (window.RTCPeerConnection && !S.rtOn) startOverlay();
       if (S.rtOn) { talkOn = true; startRT().catch(function () { S.rtOn = false; save(); rtQueue = []; talkOn = false; render(); }); }
       mount();
       var i = matchStepIndex();
