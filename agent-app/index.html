@@ -60,6 +60,7 @@
   .step .check{font-size:14px;font-style:italic;margin-top:4px}
   .score{font-size:12px;border:1px solid var(--ink);border-radius:var(--r);padding:2px 6px;height:fit-content}
   .cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px}
+  .similar{background:var(--lav);border-radius:var(--r);padding:14px 18px;margin:18px 0 6px}.similar h3{margin:0 0 2px}.similar .chip{background:#fff}
   ul.clean{list-style:none;padding:0;margin:0}
   ul.clean li{border-top:1px solid var(--rule);padding:8px 0;font-size:15px}
   ul.clean li small{color:var(--muted);display:block}
@@ -222,9 +223,23 @@ function pick(p){
 function readProfile(){
   const p = {...current}; fields.forEach(k => p[k] = $("#"+k).value); p.minutes = Number(p.minutes); return p;
 }
-function render(p){
+const demandCache = {};
+async function fetchDemand(p){
+  if (/^(localhost|127\.)/.test(location.hostname) || !p.sector || !p.role) return null;
+  const k = p.sector + "|" + p.role;
+  if (k in demandCache) return demandCache[k];
+  try {
+    const r = await fetch(`/api/insights?sector=${encodeURIComponent(p.sector)}&buyer=${encodeURIComponent(p.role)}`);
+    demandCache[k] = r.ok ? await r.json() : null;
+  } catch (e) { demandCache[k] = null; }
+  return demandCache[k];
+}
+async function render(p){
   if(!schema) return;
-  const plan = planDemo(schema, p);
+  const demand = await fetchDemand(p);
+  const plan = planDemo(schema, p, demand);
+  const asked = (plan.similar || []).filter(r => r.sessions > 0).slice(0, 5);
+  const fname = id => (schema.features.find(f => f.id === id) || {}).name || id;
   const total = plan.budgetSeconds;
   const seg = (cls, label, s) => `<div class="${cls}" style="flex:${s}" title="${label} · ${s}s">${label}</div>`;
   $("#out").innerHTML = `
@@ -244,6 +259,7 @@ function render(p){
         </div>
         <div class="score">score ${s.score}</div>
       </div>`).join("")}
+    ${asked.length ? `<div class="similar"><h3>What similar buyers asked</h3><div class="eyebrow">${p.role} buyers in ${p.sector}, from past demos</div><ul class="clean">${asked.map(r => `<li><b>${r.topic.replace(/_/g," ")}</b> · ${r.sessions} session${r.sessions===1?"":"s"}${r.promoted?' <span class="chip k">promoted to this demo</span>':""}<small>${r.features.length ? "shown in " + r.features.map(fname).join(", ") : "no matching screen yet"}</small></li>`).join("")}</ul></div>` : ""}
     <div class="cols">
       <div><h3>What they must leave knowing</h3><ul class="clean">${plan.mustKnow.map(m => `<li>${m}</li>`).join("")}</ul></div>
       <div><h3>Left out, and why</h3><ul class="clean">${plan.leftOut.slice(0,7).map(l => `<li>${l.name}<small>${l.why}</small></li>`).join("")}</ul></div>

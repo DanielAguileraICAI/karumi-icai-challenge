@@ -70,11 +70,38 @@ export function scoreFeature(f, p) {
   return { score: Math.round(s * 10) / 10, reasons };
 }
 
-export function planDemo(schema, p) {
+// What similar buyers asked (memory /api/insights): match each topic to features by words.
+const stem = w => w.replace(/(ing|s)$/, "");
+const ALIAS = { report: "analytic", dashboard: "analytic", price: "pricing", cost: "pricing", hir: "recruit", absence: "timeoff", leave: "timeoff", vacation: "timeoff", budget: "planning", forecast: "planning", api: "integration", sso: "security", erp: "integration", sap: "integration" };
+export function matchDemand(features, demand) {
+  if (!demand) return [];
+  const promoted = new Set((demand.promote || []).map(r => r.topic));
+  const rows = (demand.demand || []).filter(r => r && r.topic);
+  return rows.map(r => {
+    const words = String(r.topic).toLowerCase().split(/[^a-z0-9]+/).filter(w => w.length > 2).map(stem).flatMap(w => ALIAS[w] ? [w, ALIAS[w]] : [w]);
+    const hit = features.filter(f => {
+      const hay = [f.id, f.name, f.module, ...(f.themes || [])].join(" ").toLowerCase();
+      return words.some(w => hay.includes(w));
+    });
+    return { topic: r.topic, sessions: Number(r.sessions) || 0, mentions: Number(r.mentions) || 0, promoted: promoted.has(r.topic), features: hit.map(f => f.id) };
+  });
+}
+
+export function planDemo(schema, p, demand) {
   const intro = 15, close = 15;
   const budget = Math.max(60, (p.minutes || 3) * 60) - intro - close;
+  const similar = matchDemand(schema.features, demand);
   const scored = schema.features
-    .map(f => ({ f, ...scoreFeature(f, p) }))
+    .map(f => {
+      const x = { f, ...scoreFeature(f, p) };
+      const d = similar.filter(r => r.features.includes(f.id)).sort((a, b) => b.sessions - a.sessions)[0];
+      if (d) {
+        x.score = Math.round((x.score + Math.min(d.sessions, 4) * 0.8 + (d.promoted ? 3 : 0)) * 10) / 10;
+        x.reasons = [`asked by ${d.sessions} similar buyer${d.sessions === 1 ? "" : "s"}`, ...x.reasons];
+        x.asked = d;
+      }
+      return x;
+    })
     .sort((a, b) => b.score - a.score);
 
   // Hook: the best scored feature for this person (pricing never opens).
@@ -121,5 +148,6 @@ export function planDemo(schema, p) {
     mustKnow: [MUST_KNOW_KNOWLEDGE[p.knowledge], MUST_KNOW_CONCERN[p.concern], ...MUST_KNOW_DECISION[p.decision]].filter(Boolean),
     leftOut,
     nextStep: ns[p.stage] || ns.any,
+    similar,
   };
 }
