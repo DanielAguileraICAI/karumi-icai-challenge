@@ -52,3 +52,10 @@ group by s.sector, s.buyer_type, e.topic;
 -- Candidatos a entrar en la demo de un tipo de empresa: pedidos por >=3 sesiones distintas.
 create or replace view demo_promotions as
 select * from topic_demand where sessions >= 3 order by sessions desc, mentions desc;
+
+-- Seguridad: solo el backend (service_role, que se salta RLS) accede. anon/authenticated no ven nada.
+alter table sessions        enable row level security;
+alter table events          enable row level security;
+alter table recommendations enable row level security;
+alter view topic_demand    set (security_invoker = true);
+alter view demo_promotions set (security_invoker = true);
