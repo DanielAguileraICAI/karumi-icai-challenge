@@ -33,8 +33,17 @@
 
   function record(r) {
     var rec = Object.assign({ session_id: sid(), ts: new Date().toISOString(), product_url: location.origin + base(), type: '', role: 'agent', text: '', page_id: cur() ? cur().id : null, page_url: location.href, reason: '', source: 'widget' }, r);
+    var pr = S.profile || {};
+    if (pr.role) rec.buyer_type = pr.role;
+    if (pr.sector) rec.sector = pr.sector;
+    if (pr.company) rec.company = pr.company;
+    if (rec.type === 'replan' && rec.page_id) rec.topic = rec.page_id;
     S.journey = S.journey || []; S.journey.push(rec); save();
+    try { var all = JSON.parse(localStorage.getItem('karumi.journeys') || '[]'); all.push(rec); localStorage.setItem('karumi.journeys', JSON.stringify(all.slice(-500))); } catch (e) {}
     try { window.dispatchEvent(new CustomEvent('karumi:step', { detail: rec })); } catch (e) {}
+    // Memory API (Claudia): ?memory=<url>/api/memory on the agent web, or window.KARUMI_MEMORY_URL
+    var mem = S.memory || window.KARUMI_MEMORY_URL || localStorage.getItem('nextstep.memory');
+    if (mem) { try { fetch(mem, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rec) }).catch(function () {}); } catch (e) {} }
   }
 
   function buildDefault(schema) {

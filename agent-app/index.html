@@ -151,6 +151,8 @@ import { planDemo, scoreFeature } from "./engine.js";
 import { toVoicePlan, asDataUrl } from "./voiceplan.js";
 const $ = s => document.querySelector(s);
 let schema = null, profiles = [], current = null;
+const memParam = new URLSearchParams(location.search).get("memory");
+if (memParam) localStorage.setItem("nextstep.memory", memParam);
 const fields = ["role","decision","knowledge","concern","stage","minutes"];
 const fmt = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
 const base = () => { const u = $("#url").value.trim(); return u.endsWith("/") ? u : u + "/"; };
@@ -253,7 +255,7 @@ function render(p){
 }
 function startLive(p, plan){
   const features = schema.features.map(f => ({...f, score: scoreFeature(f, p).score}));
-  const live = {profile: p, plan, features, base: base().replace(/^\.\.\//, "/"), stepIndex: 0, journey: []};
+  const live = {profile: p, plan, features, base: base().replace(/^\.\.\//, "/"), stepIndex: 0, journey: [], memory: localStorage.getItem("nextstep.memory") || null};
   if (!live.base.startsWith("/") && !live.base.startsWith("http")) live.base = "/" + live.base;
   localStorage.setItem("nextstep.live", JSON.stringify(live));
   window.open(live.base + plan.steps[0].screen, "_blank");
