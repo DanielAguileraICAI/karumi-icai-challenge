@@ -38,6 +38,18 @@ create table if not exists recommendations (
   created_at  timestamptz default now()
 );
 
+-- Empresas cliente. Cada una ve en su panel solo las sesiones de su dominio (sessions.domain = companies.domain).
+-- dashboard_token: 32 caracteres hex aleatorios (la API lo genera; el default cubre altas hechas a mano).
+create table if not exists companies (
+  id              bigserial primary key,
+  name            text not null,
+  domain          text not null unique,         -- host sin www, igual que sessions.domain
+  dashboard_token text not null unique default replace(gen_random_uuid()::text, '-', '')
+                  check (char_length(dashboard_token) = 32),
+  created_at      timestamptz default now()
+);
+create index if not exists sessions_domain_idx on sessions(domain);
+
 -- Qué piden más, por tipo de empresa y tipo de buyer. Alimenta el plan de demo.
 create or replace view topic_demand as
 select s.sector, s.buyer_type, e.topic,
@@ -57,5 +69,6 @@ select * from topic_demand where sessions >= 3 order by sessions desc, mentions 
 alter table sessions        enable row level security;
 alter table events          enable row level security;
 alter table recommendations enable row level security;
+alter table companies       enable row level security;
 alter view topic_demand    set (security_invoker = true);
 alter view demo_promotions set (security_invoker = true);

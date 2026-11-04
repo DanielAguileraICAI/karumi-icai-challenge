@@ -1,7 +1,7 @@
 // POST: guarda un paso del recorrido (contrato de Luis: {session_id, ts, product_url, type, role, text, page_id, page_url, reason, source}).
 // Extras opcionales que acepta: buyer_type, sector, company, topic, meta.
 // Es el destino de ?memory=<url> del voice agent.
-import { sb, dbReady, cors } from './_db.js';
+import { sb, dbReady, cors, upsertSession, hostOf } from './_db.js';
 import { chat } from './_llm.js';
 
 async function topicOf(text) {
@@ -21,13 +21,8 @@ export default async function handler(req, res) {
   const s = typeof req.body === 'string' ? JSON.parse(req.body || '{}') : (req.body || {});
   if (!s.session_id || !s.type) return res.status(400).json({ error: 'session_id and type required' });
   try {
-    let domain = null;
-    try { domain = new URL(s.product_url).hostname.replace(/^www\./, ''); } catch {}
-    await sb('/sessions?on_conflict=id', {
-      method: 'POST', prefer: 'resolution=merge-duplicates,return=minimal',
-      body: { id: s.session_id, product_url: s.product_url || null, domain,
-        ...(s.buyer_type && { buyer_type: s.buyer_type }), ...(s.sector && { sector: s.sector }), ...(s.company && { company: s.company }) },
-    });
+    await upsertSession({ id: s.session_id, product_url: s.product_url, domain: hostOf(s.product_url),
+      buyer_type: s.buyer_type, sector: s.sector, company: s.company });
     const topic = s.topic || (s.type === 'utterance' && s.role === 'user' ? await topicOf(s.text) : null);
     await sb('/events', {
       method: 'POST', prefer: 'return=minimal',

@@ -1,6 +1,11 @@
 // Seeds the memory layer with SYNTHETIC demo sessions so /api/insights has something to show.
 // Every row is marked source "seed" and its session id starts with "seed-".
 // Usage: node scripts/seed-memory.mjs [https://karumi-icai-challenge.vercel.app]
+//        node scripts/seed-memory.mjs --companies [BASE]   two companies with mixed data, then checks each dashboard sees only its own
+if (process.argv[2] === "--companies") {
+  await import("./seed-companies.mjs");
+  process.exit(process.exitCode || 0);
+}
 const BASE = (process.argv[2] || "https://karumi-icai-challenge.vercel.app").replace(/\/$/, "");
 const PRODUCT = BASE + "/client-site/";
 const SESSIONS = [

@@ -1,7 +1,7 @@
 // GET ?url=<web>&buyer=<tipo>&session=<id>  → scrapea la web y devuelve recomendaciones para ese tipo de buyer.
 // Cada recomendación se guarda en `recommendations` (si hay Supabase). Clics/ideas se guardan vía /api/memory con type reco_click|reco_idea.
 import { safeUrl, fetchText, strip } from './_util.js';
-import { sb, dbReady, cors } from './_db.js';
+import { sb, dbReady, cors, upsertSession, hostOf } from './_db.js';
 import { chat, parseJson } from './_llm.js';
 
 const pick = (re, s) => { const m = s.match(re); return m ? strip(m[1]) : ''; };
@@ -50,8 +50,7 @@ export default async function handler(req, res) {
     recs = (recs || fallback(site)).slice(0, 4);
     if (dbReady() && req.query.session) {
       try {
-        await sb('/sessions?on_conflict=id', { method: 'POST', prefer: 'resolution=merge-duplicates,return=minimal',
-          body: { id: req.query.session, product_url: site.url, domain: new URL(site.url).hostname.replace(/^www\./, ''), buyer_type: buyer } });
+        await upsertSession({ id: req.query.session, product_url: site.url, domain: hostOf(site.url), buyer_type: buyer });
         await sb('/recommendations', { method: 'POST', prefer: 'return=minimal',
           body: recs.map(r => ({ session_id: req.query.session, product_url: site.url, buyer_type: buyer, rec_key: r.key, title: r.title, why: r.why })) });
       } catch {}

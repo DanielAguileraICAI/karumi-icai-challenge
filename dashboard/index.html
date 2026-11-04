@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta name="robots" content="noindex">
+<title>Demo insights · nextfirststep</title>
+<link rel="icon" href="/assets/logo.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#161515;--sand:#F2EAD9;--white:#FFFFFF;--muted:rgba(22,21,21,.62);--rule:rgba(22,21,21,.16);--r:4px}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Schibsted Grotesk",system-ui,sans-serif;color:var(--ink);background:var(--white);font-size:16px;line-height:1.45}
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+  header.top{border-bottom:1px solid var(--rule)}
+  header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;height:60px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:-.02em;font-size:19px}
+  .who{font-size:14px;color:var(--muted);text-align:right;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .eyebrow{font-size:12.5px;text-transform:uppercase;letter-spacing:.08em;font-weight:700;color:var(--muted);margin:0 0 10px}
+  .hero{padding:44px 0 28px}
+  h1{font-size:44px;line-height:1.05;letter-spacing:-.03em;margin:0 0 10px;font-weight:800;max-width:860px}
+  .sub{margin:0;color:var(--muted);font-size:15px}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:8px 0 40px}
+  .kpi{border:1px solid var(--ink);border-radius:var(--r);padding:20px 22px}
+  .kpi b{display:block;font-size:64px;line-height:1;letter-spacing:-.04em;font-weight:800}
+  .kpi span{display:block;margin-top:10px;font-weight:700;font-size:15px}
+  .kpi small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+  section{margin:0 0 44px}
+  h2{font-size:24px;letter-spacing:-.02em;margin:0 0 4px;font-weight:800}
+  .hint{color:var(--muted);font-size:14px;margin:0 0 16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:40px}
+  .topic{display:grid;grid-template-columns:28px 1fr auto;gap:4px 12px;align-items:baseline;padding:12px 0;border-top:1px solid var(--rule)}
+  .topic:last-child{border-bottom:1px solid var(--rule)}
+  .topic .n{font-weight:800;color:var(--muted);font-size:14px}
+  .topic .name{font-weight:700;font-size:17px}
+  .topic .count{font-size:14px;color:var(--muted);white-space:nowrap}
+  .topic .bar{grid-column:2/4;height:8px;background:var(--sand);border-radius:var(--r);overflow:hidden}
+  .topic .bar i{display:block;height:100%;background:var(--ink)}
+  .topic .chips{grid-column:2/4}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:12.5px;background:var(--sand);border-radius:var(--r);padding:2px 8px;white-space:nowrap}
+  .chip.o{background:var(--white);border:1px solid var(--rule)}
+  .ready{background:var(--sand);border-radius:var(--r);padding:16px 18px}
+  .ready h3{margin:0 0 8px;font-size:15px}
+  .ready ul{margin:0;padding:0;list-style:none}
+  .ready li{padding:6px 0;border-top:1px solid rgba(22,21,21,.12);font-size:15px}
+  .ready li:first-child{border-top:0}
+  .ready .muted{color:var(--muted);font-size:14px;margin:0}
+  ul.rows{list-style:none;margin:0;padding:0}
+  ul.rows li{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-top:1px solid var(--rule);font-size:15px}
+  ul.rows li:last-child{border-bottom:1px solid var(--rule)}
+  ul.rows li span:last-child{color:var(--muted);white-space:nowrap;font-size:14px}
+  .buyer{margin:0 0 18px}
+  .buyer h3{font-size:15px;margin:0 0 6px;display:flex;justify-content:space-between;gap:8px}
+  .buyer h3 small{font-weight:400;color:var(--muted);font-size:13.5px}
+  .quote{border-top:1px solid var(--rule);padding:12px 0}
+  .quote:last-child{border-bottom:1px solid var(--rule)}
+  .quote p{margin:0 0 4px;font-size:17px;line-height:1.35}
+  .quote small{color:var(--muted);font-size:13px}
+  .sess{border-top:1px solid var(--rule)}
+  .sess:last-child{border-bottom:1px solid var(--rule)}
+  .sess summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:center;padding:12px 0}
+  .sess summary::-webkit-details-marker{display:none}
+  .sess summary:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+  .sess .when{font-size:13.5px;color:var(--muted)}
+  .sess .who2 b{display:block;font-size:15.5px}
+  .sess .who2 .chips{margin-top:4px}
+  .sess .toggle{font-size:13px;border:1px solid var(--rule);border-radius:var(--r);padding:3px 8px;white-space:nowrap}
+  .sess[open] .toggle .o1,.sess:not([open]) .toggle .o2{display:none}
+  ol.journey{list-style:none;margin:0 0 14px 122px;padding:0;border-left:1px solid var(--rule)}
+  ol.journey li{padding:5px 0 5px 14px;font-size:14.5px;display:grid;grid-template-columns:96px 1fr;gap:10px}
+  ol.journey li em{font-style:normal;font-weight:700;font-size:12.5px;text-transform:uppercase;letter-spacing:.05em;padding-top:2px}
+  ol.journey li.u em{color:var(--ink)}
+  ol.journey li:not(.u) em{color:var(--muted)}
+  ol.journey li:not(.u) span{color:var(--muted)}
+  .state{border:1px dashed var(--rule);border-radius:var(--r);padding:40px;text-align:center;color:var(--muted);margin:24px 0 60px}
+  .state b{display:block;color:var(--ink);font-size:20px;margin-bottom:6px}
+  footer{border-top:1px solid var(--rule);padding:18px 0 28px;font-size:13px;color:var(--muted)}
+  @media (max-width:820px){
+    .wrap{padding:0 18px}
+    h1{font-size:32px}
+    .kpis{grid-template-columns:1fr;gap:10px}
+    .kpi{display:grid;grid-template-columns:76px 1fr;column-gap:12px;align-items:center;padding:14px 16px}
+    .kpi b{font-size:44px;grid-row:1/3}
+    .kpi span{margin:0;align-self:end}
+    .kpi small{margin:0;align-self:start}
+    .grid2{grid-template-columns:1fr;gap:28px}
+    .sess summary{grid-template-columns:1fr auto}
+    .sess .when{grid-column:1/3}
+    ol.journey{margin-left:0}
+    ol.journey li{grid-template-columns:84px 1fr}
+  }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <div class="brand"><img src="/assets/logo.svg" alt="" width="24" height="24">nextfirststep</div>
+  <div class="who" id="who"></div>
+</div></header>
+
+<main class="wrap" id="app"><div class="state"><b>Loading</b>Reading your visitors' demos</div></main>
+
+<footer><div class="wrap" id="foot">Only sessions from your own domain are shown on this page</div></footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const BUYERS = { cfo: 'CFO', cto: 'CTO', ceo: 'CEO', hr: 'HR', it: 'IT', coo: 'COO', finance: 'Finance', manager: 'Manager', general: 'General', ops: 'Operations', unknown: 'No profile' };
+const buyer = (b) => BUYERS[b || 'unknown'] || String(b).replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+const TOPICS = { timeoff: 'Time off', ai: 'AI', sso: 'SSO', api: 'API' };
+const topic = (t) => TOPICS[t] || String(t || '').replace(/_/g, ' ').replace(/^./, c => c.toUpperCase());
+const plural = (n, one, many) => `${n} ${n === 1 ? one : (many || one + 's')}`;
+const rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' });
+function ago(ts) {
+  const s = (new Date(ts) - Date.now()) / 1000;
+  if (!isFinite(s)) return '';
+  const a = Math.abs(s);
+  if (a < 60) return 'just now';
+  if (a < 3600) return rtf.format(Math.round(s / 60), 'minute');
+  if (a < 86400) return rtf.format(Math.round(s / 3600), 'hour');
+  if (a < 86400 * 30) return rtf.format(Math.round(s / 86400), 'day');
+  return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+const clock = (ts) => new Date(ts).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+function state(title, text) { $('app').innerHTML = `<div class="state"><b>${esc(title)}</b>${esc(text)}</div>`; }
+
+const STEP = {
+  utterance: (e) => e.role === 'user' ? ['Asked', e.text, true] : ['Agent', e.text],
+  reply: (e) => ['Agent', e.text],
+  navigate: (e) => ['Showed', e.text || topic(e.page_id)],
+  highlight: (e) => ['Pointed at', e.text || topic(e.page_id)],
+  replan: (e) => ['Changed plan', e.text || topic(e.topic || e.page_id), true],
+  reco_click: (e) => ['Clicked', e.text, true],
+  reco_idea: (e) => ['Suggested', e.text, true],
+  session_start: () => ['Started', 'Demo started'],
+};
+
+function render(d) {
+  const t = d.totals, name = d.company.name;
+  $('who').textContent = `${name} · ${d.company.domain}`;
+  document.title = `${name} demo insights · nextfirststep`;
+  $('foot').textContent = `Only sessions from ${d.company.domain} are shown on this page. Updated ${clock(d.generated_at)}.`;
+  if (!t.sessions) {
+    $('app').innerHTML = `<div class="hero"><p class="eyebrow">Demo insights</p><h1>What ${esc(name)} visitors asked for</h1></div>`;
+    $('app').insertAdjacentHTML('beforeend', `<div class="state"><b>No demos yet</b>Once the demo guide is live on ${esc(d.company.domain)}, every request your visitors make shows up here</div>`);
+    return;
+  }
+  const max = Math.max(1, ...d.top_topics.map(x => x.mentions));
+  const topics = d.top_topics.slice(0, 8).map((x, i) => `
+    <div class="topic"><span class="n">${i + 1}</span><span class="name">${esc(topic(x.topic))}</span>
+      <span class="count">${plural(x.mentions, 'request')} · ${plural(x.sessions, 'demo')}</span>
+      <div class="bar"><i style="width:${Math.round(100 * x.mentions / max)}%"></i></div>
+      <div class="chips">${Object.entries(x.by_buyer).sort((a, b) => b[1] - a[1]).map(([b, n]) => `<span class="chip">${esc(buyer(b))} ${n}</span>`).join('')}</div>
+    </div>`).join('') || '<p class="hint">No requests tagged with a topic yet</p>';
+
+  const ready = d.promoted.length
+    ? `<ul>${d.promoted.slice(0, 6).map(p => `<li><b>${esc(topic(p.topic))}</b> for ${esc(buyer(p.buyer_type))}${p.sector ? ' in ' + esc(p.sector) : ''} · ${plural(p.sessions, 'demo')}</li>`).join('')}</ul>`
+    : `<p class="muted">A topic lands here when 3 different demos with the same buyer profile ask for it</p>`;
+
+  const byBuyer = d.demand_by_buyer.map(b => `
+    <div class="buyer"><h3>${esc(buyer(b.buyer_type))} <small>${plural(b.sessions, 'demo')}</small></h3>
+      <div class="chips">${b.topics.slice(0, 5).map(x => `<span class="chip">${esc(topic(x.topic))} ${x.mentions}</span>`).join('')}</div></div>`).join('')
+    || '<p class="hint">No requests yet</p>';
+
+  const clicks = d.reco_clicks.length
+    ? `<ul class="rows">${d.reco_clicks.slice(0, 8).map(c => `<li><span>${esc(c.title)}</span><span>${plural(c.clicks, 'click')}${c.shown ? ' of ' + c.shown + ' shown' : ''}</span></li>`).join('')}</ul>`
+    : '<p class="hint">No recommendation clicked yet</p>';
+
+  const quotes = d.ideas.slice(0, 8).map(q => `
+    <div class="quote"><p>"${esc(q.text)}"</p>
+      <small>${esc(buyer(q.buyer_type))}${q.visitor_company ? ' at ' + esc(q.visitor_company) : ''} · ${q.channel === 'voice' ? 'by voice' : 'typed'}${q.topic ? ' · ' + esc(topic(q.topic)) : ''} · ${esc(ago(q.ts))}</small></div>`).join('')
+    || '<p class="hint">Nothing said yet</p>';
+
+  const sessions = d.sessions.map(s => {
+    const steps = s.steps.map(e => STEP[e.type] && STEP[e.type](e)).filter(x => x && x[1]);
+    return `<details class="sess" data-id="${esc(s.id)}"><summary>
+      <span class="when">${esc(ago(s.last_at))}</span>
+      <span class="who2"><b>${esc(buyer(s.buyer_type))}${s.visitor_company ? ' at ' + esc(s.visitor_company) : ''}</b>
+        <span class="chips">${s.sector ? `<span class="chip o">${esc(s.sector)}</span>` : ''}${s.topics.map(x => `<span class="chip">${esc(topic(x))}</span>`).join('')}</span></span>
+      <span class="toggle"><span class="o1">Journey</span><span class="o2">Hide</span></span></summary>
+      <ol class="journey">${steps.map(([k, v, u]) => `<li class="${u ? 'u' : ''}"><em>${esc(k)}</em><span>${esc(v)}</span></li>`).join('') || '<li><em>Empty</em><span>No steps recorded</span></li>'}</ol>
+    </details>`;
+  }).join('');
+
+  $('app').innerHTML = `
+    <div class="hero"><p class="eyebrow">Demo insights</p><h1>What ${esc(name)} visitors asked for</h1>
+      <p class="sub">${esc(d.company.domain)} · last activity ${esc(ago(t.last_activity))}</p></div>
+    <div class="kpis">
+      <div class="kpi"><b>${t.sessions}</b><span>Demos run</span><small>Visitors who started the demo guide</small></div>
+      <div class="kpi"><b>${t.asks}</b><span>Requests</span><small>Things visitors asked to see</small></div>
+      <div class="kpi"><b>${t.reco_clicks}</b><span>Recommendations clicked</span><small>Suggestions the visitor followed</small></div>
+    </div>
+    <section class="grid2">
+      <div><h2>Most requested</h2><p class="hint">What visitors asked for, and which buyer profiles asked</p>${topics}</div>
+      <div><div class="ready"><h3>Ready to add to the demo</h3>${ready}</div>
+        <h2 style="margin-top:28px">By buyer type</h2><p class="hint">Top requests for each profile</p>${byBuyer}</div>
+    </section>
+    <section class="grid2">
+      <div><h2>In their own words</h2><p class="hint">Latest things visitors said to the demo guide</p>${quotes}</div>
+      <div><h2>Recommendations clicked</h2><p class="hint">Which suggestions visitors followed</p>${clicks}</div>
+    </section>
+    <section><h2>Recent demos</h2><p class="hint">The last ${plural(d.sessions.length, 'demo')}, open one to see its journey</p>${sessions}</section>`;
+}
+
+const token = new URLSearchParams(location.search).get('token');
+async function load(first) {
+  if (!token) return state('This page needs your private link', 'Open the dashboard link you received when your company was registered');
+  try {
+    const r = await fetch('/api/dashboard?token=' + encodeURIComponent(token), { cache: 'no-store' });
+    if (r.status === 401) return state('This link is not valid', 'Check that you copied the whole dashboard link');
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error);
+    const open = new Set([...document.querySelectorAll('details.sess[open]')].map(x => x.dataset.id));
+    render(d);
+    document.querySelectorAll('details.sess').forEach(x => { if (open.has(x.dataset.id)) x.open = true; });
+  } catch (e) {
+    if (first) state('Could not load the data', 'Try again in a minute');
+  }
+}
+load(true);
+setInterval(() => document.visibilityState === 'visible' && load(false), 60000);
+</script>
+</body>
+</html>

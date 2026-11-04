@@ -22,3 +22,20 @@ export const cors = (res) => {
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 };
+
+// A session belongs to the domain of its first write. Later writes can fill a missing domain or update the
+// visitor profile, but never move a session (and its events) into another company's dashboard.
+export async function upsertSession({ id, product_url, domain, ...profile }) {
+  const prof = Object.fromEntries(Object.entries(profile).filter(([, v]) => v));
+  const made = await sb('/sessions?on_conflict=id', { method: 'POST', prefer: 'resolution=ignore-duplicates,return=representation',
+    body: { id, product_url: product_url || null, domain: domain || null, ...prof } });
+  if (made && made.length) return;
+  const sid = encodeURIComponent(id);
+  await Promise.all([
+    Object.keys(prof).length && sb(`/sessions?id=eq.${sid}`, { method: 'PATCH', prefer: 'return=minimal', body: prof }),
+    domain && sb(`/sessions?id=eq.${sid}&domain=is.null`, { method: 'PATCH', prefer: 'return=minimal', body: { product_url, domain } }),
+  ]);
+}
+
+// Host without www, the key that ties sessions to a company.
+export const hostOf = (url) => { try { return new URL(url).hostname.replace(/^www\./, ''); } catch { return null; } };
