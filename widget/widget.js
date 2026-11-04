@@ -126,7 +126,10 @@
       '.ns-mark{outline:2px solid #161515 !important;outline-offset:4px;transition:outline-color .3s}',
       '.ns-tint{background:#F2EAD9 !important;color:#161515 !important}',
       '.ns-root.ns-vmode{right:0;bottom:0}',
-      '.ns-big{position:fixed;right:-53px;bottom:-53px;animation:ns-up .4s ease-out both}',
+      '.ns-big{position:fixed;left:calc(100vw - 130px);top:calc(100vh - 130px);cursor:pointer;transition:left .9s cubic-bezier(.2,.8,.2,1),top .9s cubic-bezier(.2,.8,.2,1);animation:ns-up .4s ease-out both}',
+      '.ns-big.ns-lookr .ns-dot{transform:scaleX(-1)}',
+      '.ns-big .ns-tap{position:absolute;left:50%;top:100%;transform:translateX(-50%);white-space:nowrap}',
+      '@media (prefers-reduced-motion:reduce){.ns-big{transition:none}}',
       '@keyframes ns-up{0%{transform:translateY(220px)}100%{transform:translateY(0)}}',
       '.ns-cap{position:fixed;right:124px;bottom:44px;max-width:340px;background:#FFFFFF;border:1px solid #161515;border-radius:4px;padding:12px 14px;font-size:16px;line-height:1.45}',
       '.ns-cap p{margin:0}',
@@ -209,17 +212,31 @@
   function renderVoice() {
     var root = el.root;
     if (!root.querySelector('.ns-voice')) {
-      root.innerHTML = '<div class="ns-voice"><div class="ns-cap"><p class="ns-capt"></p><div class="ns-tapw"></div><div class="ns-vbtns"><button type="button" class="ns-pause"></button><button type="button" class="ns-toclick"></button></div></div><div class="ns-big">' + agentDot(160) + '</div></div>';
-      root.querySelector('.ns-pause').onclick = function () { vPaused ? vResume() : vPause(); };
-      root.querySelector('.ns-toclick').onclick = function () { setMode('click'); };
+      root.innerHTML = '<div class="ns-voice"><div class="ns-big" role="button" tabindex="0" title="' + T('Click to see the plan', 'Clic para ver el plan') + '">' + agentDot(96) + '<span class="ns-tapw"></span></div></div>';
+      var big = root.querySelector('.ns-big');
+      big.onclick = function () { setMode('click'); open = true; render(); };
+      setTimeout(function () { placeDot(); }, 450);
     }
-    var st = cur();
-    root.querySelector('.ns-capt').textContent = vCap || (st ? st.say : (S.plan.nextStep || ''));
     root.querySelector('.ns-tapw').innerHTML = pendingSay ? '<span class="ns-tap">' + T('Tap to continue', 'Toca para seguir') + '</span>' : '';
-    root.querySelector('.ns-pause').textContent = vPaused ? T('Resume', 'Seguir') : T('Pause', 'Pausa');
-    root.querySelector('.ns-toclick').textContent = T('Click mode', 'Modo click');
     setLive();
   }
+  var dotTarget = null, dotRaf = 0;
+  function placeDot(t) {
+    if (t) dotTarget = t;
+    var big = el.root && el.root.querySelector('.ns-big'); if (!big) return;
+    var n = dotTarget && document.contains(dotTarget) ? dotTarget : (document.querySelector('.ns-tint') || document.querySelector('main h1, main h2') || null);
+    var W = window.innerWidth, H = window.innerHeight, D = 96, x, y, lookRight = false;
+    if (!n) { x = W - D - 34; y = H - D - 34; }
+    else {
+      var r = n.getBoundingClientRect();
+      if (r.right + 18 + D < W) { x = r.right + 18; } else if (r.left - 18 - D > 0) { x = r.left - 18 - D; lookRight = true; } else { x = W - D - 24; }
+      y = Math.max(12, Math.min(H - D - 12, r.top + r.height / 2 - D / 2));
+    }
+    big.style.left = Math.round(x) + 'px'; big.style.top = Math.round(y) + 'px';
+    big.classList.toggle('ns-lookr', lookRight);
+  }
+  window.addEventListener('scroll', function () { if (!isVoice()) return; cancelAnimationFrame(dotRaf); dotRaf = requestAnimationFrame(function () { placeDot(); }); }, { passive: true });
+  window.addEventListener('resize', function () { if (isVoice()) placeDot(); });
   function vStop() {
     clearTimeout(vTimer); vTimer = null; thinking = false;
     curU = null; pendingSay = null;
@@ -361,7 +378,7 @@
     return best;
   }
   window.__nsScreen = function (n, a) { return screenTool(n, a || {}); };
-  function flash(n) { try { n.scrollIntoView({ behavior: 'smooth', block: 'center' }); var o = n.style.outline; n.style.outline = '3px solid #ff3b30'; n.style.outlineOffset = '3px'; setTimeout(function () { n.style.outline = o; }, 2500); } catch (e) {} }
+  function flash(n) { try { n.scrollIntoView({ behavior: 'smooth', block: 'center' }); if (isVoice()) setTimeout(function () { placeDot(n); }, 600); var o = n.style.outline; n.style.outline = '3px solid #ff3b30'; n.style.outlineOffset = '3px'; setTimeout(function () { n.style.outline = o; }, 2500); } catch (e) {} }
   function screenTool(name, args) {
     if (name === 'read_screen') return readScreen();
     if (name === 'point_at') { var n = findByText(args.text || '', 'h1,h2,h3,h4,p,li,td,th,label,button,a,span,div'); if (!n) return { ok: false, error: 'not on screen' }; flash(n); record({ type: 'highlight', role: 'agent', text: args.text, source: 'widget-llm' }); return { ok: true }; }
@@ -537,7 +554,7 @@
     var st = cur(); el.extra = el.extra || {};
     if (!st) { render(); return; }
     S.visited = S.visited || []; if (S.visited.indexOf(st.id) < 0) S.visited.push(st.id); save();
-    if (isVoice()) { vCap = ''; render(); highlight(st); if (!vPaused) setTimeout(function () { if (isVoice() && !vPaused) vSpeakCurrent(); }, 400); return; }
+    if (isVoice()) { vCap = ''; render(); highlight(st); setTimeout(function () { placeDot(document.querySelector('.ns-tint') || document.querySelector('.ns-mark')); }, 650); if (!vPaused) setTimeout(function () { if (isVoice() && !vPaused) vSpeakCurrent(); }, 400); return; }
     open = true; render();
     highlight(st);
     var pre = S.stepIndex === 0 && S.plan.opening && !S.openingDone ? S.plan.opening + ' ' : '';
