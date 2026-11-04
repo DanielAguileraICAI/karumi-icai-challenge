@@ -42,7 +42,7 @@
     try { var all = JSON.parse(localStorage.getItem('karumi.journeys') || '[]'); all.push(rec); localStorage.setItem('karumi.journeys', JSON.stringify(all.slice(-500))); } catch (e) {}
     try { window.dispatchEvent(new CustomEvent('karumi:step', { detail: rec })); } catch (e) {}
     // Memory API (Claudia): ?memory=<url>/api/memory on the agent web, or window.KARUMI_MEMORY_URL
-    var mem = S.memory || window.KARUMI_MEMORY_URL || localStorage.getItem('nextstep.memory');
+    var mem = S.memory || window.KARUMI_MEMORY_URL || localStorage.getItem('nextstep.memory') || (/^(localhost|127\.)/.test(location.hostname) ? null : '/api/memory');
     if (mem) { try { fetch(mem, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(rec) }).catch(function () {}); } catch (e) {} }
   }
 
