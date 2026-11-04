@@ -102,6 +102,10 @@
       '.ns-btn.ns-alt{background:#FFDFF3;color:#161515}.ns-btn.ns-on{background:#D9F56A;color:#161515}',
       '.ns-form{display:flex;gap:6px;margin-bottom:12px}',
       '.ns-in{flex:1;border:1px solid #161515;border-radius:4px;padding:7px 8px;background:#fff;color:#161515;font-size:13px}',
+      '.ns-recos{border-top:1px solid #161515;padding-top:8px;margin-bottom:10px}',
+      '.ns-recos .ns-mod{margin-bottom:6px}',
+      '.ns-reco{display:block;width:100%;text-align:left;background:#D8D0E8;color:#161515;border:0;border-radius:4px;padding:7px 8px;margin-bottom:6px;cursor:pointer;font-size:13px;font-weight:600}',
+      '.ns-reco small{display:block;font-weight:400;opacity:.8}',
       '.ns-route{border-top:1px solid #161515;padding-top:8px;margin:0;list-style:none}',
       '.ns-route li{display:flex;gap:8px;padding:4px 0;font-size:13px;cursor:pointer}',
       '.ns-route li span:first-child{width:16px;text-align:center}',
@@ -148,6 +152,11 @@
     h += '<div class="ns-btns"><button class="ns-btn ns-next" type="button">' + (done ? T('Restart', 'Reiniciar') : (S.stepIndex + 1 >= n ? T('Finish', 'Terminar') : T('Next', 'Siguiente'))) + '</button>' +
       (rec ? '<button class="ns-btn ns-alt ns-talk' + (talkOn ? ' ns-on' : '') + '" type="button">' + (talkOn ? T('Stop', 'Parar') : T('Talk', 'Hablar')) + '</button>' : '') + '</div>';
     h += '<form class="ns-form"><input class="ns-in" placeholder="' + T('Ask or type a topic', 'Pregunta o escribe un tema') + '"><button class="ns-btn ns-alt" style="flex:0 0 auto" type="submit">' + T('Send', 'Enviar') + '</button></form>';
+    var rc = (S.recos || []).slice(0, 4);
+    if (rc.length) h += '<div class="ns-recos"><div class="ns-mod">' + T('You may also want to see', 'También te puede interesar') + '</div>' + rc.map(function (r, i) {
+      return '<button class="ns-reco" type="button" data-r="' + i + '">' + esc(r.title) + (r.why ? '<small>' + esc(r.why) + '</small>' : '') + '</button>';
+    }).join('') + '</div>';
+    else loadRecos();
     h += '<ol class="ns-route">' + steps().map(function (s, i) {
       var mark = i === S.stepIndex ? '&#9679;' : (visited.indexOf(s.id) >= 0 || i < S.stepIndex ? '&#10003;' : '');
       return '<li data-i="' + i + '" class="' + (i === S.stepIndex ? 'ns-cur' : '') + '"><span>' + mark + '</span><span>' + esc(s.name) + '</span></li>';
@@ -157,9 +166,70 @@
     root.querySelector('.ns-next').onclick = next;
     var tb = root.querySelector('.ns-talk'); if (tb) tb.onclick = toggleTalk;
     root.querySelector('.ns-form').onsubmit = function (e) { e.preventDefault(); var i = root.querySelector('.ns-in'); var v = i.value.trim(); if (v) { i.value = ''; heard(v, 'typed'); } };
+    Array.prototype.forEach.call(root.querySelectorAll('.ns-reco'), function (b) {
+      b.onclick = function () { pickReco((S.recos || [])[+b.getAttribute('data-r')]); };
+    });
     Array.prototype.forEach.call(root.querySelectorAll('.ns-route li'), function (li) {
       li.onclick = function () { go(+li.getAttribute('data-i'), 'picked from route'); };
     });
+  }
+
+  /* ---------- recommendations (memory /api/recommend) ---------- */
+  var recoLoading = false;
+  function loadRecos() {
+    if (recoLoading || /^(localhost|127\.)/.test(location.hostname)) return;
+    recoLoading = true;
+    var pr = S.profile || {};
+    var u = '/api/recommend?url=' + encodeURIComponent(location.origin + base()) + '&buyer=' + encodeURIComponent(pr.title || pr.role || 'general') + '&session=' + encodeURIComponent(sid());
+    fetch(u).then(function (r) { return r.ok ? r.json() : null; }).then(function (d) {
+      recoLoading = false;
+      var list = d && d.recommendations ? d.recommendations.slice(0, 4) : [];
+      if (!list.length) return;
+      S.recos = list; save();
+      if (!S.recoShown) { S.recoShown = true; save(); record({ type: 'reco_shown', text: list.map(function (r) { return r.title; }).join(' | '), reason: 'recommendations in widget', meta: { keys: list.map(function (r) { return r.key; }) } }); }
+      if (open) render();
+    }).catch(function () { recoLoading = false; });
+  }
+  function featureForUrl(url) {
+    var path; try { path = new URL(url, location.href).pathname.replace(/\/+/g, '/'); } catch (e) { return null; }
+    var fs = S.features || [];
+    for (var i = 0; i < fs.length; i++) if (fs[i].screen && (base() + fs[i].screen).replace(/\/+/g, '/') === path) return fs[i];
+    return null;
+  }
+  function insertNext(f) {
+    var list = steps(), st = cur();
+    if (st && st.id === f.id) return false;
+    var at = -1; for (var i = 0; i < list.length; i++) if (list[i].id === f.id) at = i;
+    var moved = at >= 0 ? list.splice(at, 1)[0] : toStep(f);
+    if (at >= 0 && at <= S.stepIndex) S.stepIndex -= 1;
+    var ins = Math.max(0, Math.min(S.stepIndex + 1, list.length));
+    list.splice(ins, 0, moved);
+    list.forEach(function (s, k) { s.n = k + 1; });
+    save(); return ins;
+  }
+  function pickReco(r) {
+    if (!r) return;
+    record({ type: 'reco_click', role: 'user', text: r.title, topic: r.key, page_url: r.page_url || location.href, reason: 'recommendation button' });
+    var f = r.page_url ? featureForUrl(r.page_url) : null;
+    if (f) {
+      var st = cur();
+      if (st && st.id === f.id) { highlight(st); return; }
+      var ins = insertNext(f);
+      var change = T('Plan changed: you picked ' + r.title + ', so we go to ' + f.name, 'Plan cambiado: has elegido ' + r.title + ', así que vamos a ' + f.name);
+      record({ type: 'replan', role: 'agent', text: change, page_id: f.id, reason: 'recommendation ' + r.key });
+      el.extra = { change: change };
+      return go(ins, 'recommendation ' + r.key);
+    }
+    if (r.page_url) location.href = r.page_url;
+  }
+  function matchReco(text) {
+    var t = norm(text), rc = S.recos || [];
+    for (var i = 0; i < rc.length; i++) {
+      var title = norm(rc[i].title);
+      var words = title.split(/[^a-z0-9]+/).filter(function (w) { return w.length > 3; });
+      if (title && (t.indexOf(title) >= 0 || (words.length && words.filter(function (w) { return t.indexOf(w) >= 0; }).length >= Math.min(2, words.length)))) return rc[i];
+    }
+    return null;
   }
 
   /* ---------- voice ---------- */
@@ -253,6 +323,8 @@
   }
   function heard(text, source) {
     record({ type: 'utterance', role: 'user', text: text, reason: source, source: 'widget-' + source });
+    var ri = matchReco(text);
+    if (ri) record({ type: 'reco_idea', role: 'user', text: text, topic: ri.key, page_url: ri.page_url || null, reason: 'said a recommendation (' + source + ')' });
     var t = norm(text);
     if (/^(next|siguiente|sigue|continua|continue|vale|ok)\b/.test(t)) { render({}); return next(); }
     var r = rank(text), top = r[0], st = cur();
