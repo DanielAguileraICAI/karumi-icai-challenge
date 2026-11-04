@@ -25,7 +25,7 @@
 
   function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
-  function lang() { return S && S.profile && S.profile.language === 'en' ? 'en' : 'es'; }
+  function lang() { return /[?&]lang=en/.test(location.search) ? 'en' : 'es'; }
   function T(en, es) { return lang() === 'es' ? es : en; }
   function base() { return (S && S.base) || '/client-site/'; }
   function steps() { return S.plan.steps; }
@@ -361,7 +361,7 @@
     ov.innerHTML = '<button type="button" style="font:600 22px/1.2 system-ui,sans-serif;padding:22px 34px;border-radius:999px;border:0;background:#111;color:#fff;box-shadow:0 18px 50px rgba(0,0,0,.4);cursor:pointer">&#9654; ' +
       T('Start the demo', 'Empezar la demo') + '<small style="display:block;font-weight:400;font-size:13px;opacity:.75;margin-top:6px">' +
       esc((pr.name ? pr.name + ' · ' : '') + T('the guide will talk with you', 'la guía hablará contigo')) + '</small></button>';
-    ov.querySelector('button').onclick = function () { OVERLAY = false; S.autovoiceDone = true; save(); ov.remove(); setMode('voice'); };
+    ov.querySelector('button').onclick = function () { OVERLAY = false; S.autovoiceDone = true; save(); ov.remove(); talkOn = false; toggleTalk(); };
     document.body.appendChild(ov);
   }
 
@@ -710,10 +710,12 @@
         mount();
         var first = steps()[0];
         if (first) frameGo(pathOf(first), function () { highlight(cur()); });
-        setMode('voice');
+        S.mode = 'click'; save(); open = true; render();
+        talkOn = false; toggleTalk();
         return;
       }
-      if (S.mode !== 'voice') { S.mode = 'voice'; save(); }
+      if (S.mode !== 'click') { S.mode = 'click'; save(); }
+      open = true;
       if (window.RTCPeerConnection && !S.rtOn) startOverlay();
       if (S.rtOn) { talkOn = true; startRT().catch(function () { S.rtOn = false; save(); rtQueue = []; talkOn = false; render(); }); }
       mount();
