@@ -1,0 +1,50 @@
+[
+  {
+    "contact": {"id":"cfo","first_name":"Marta","last_name":"Ruiz","email":"marta.ruiz@logitrans-iberia.example","job_title":"CFO","seniority":"c-level","department":"Finance","linkedin_headline":"CFO at Logitrans Iberia | Cost control, logistics, M&A","language":"es","country":"Spain","timezone":"Europe/Madrid"},
+    "company": {"name":"Logitrans Iberia","domain":"logitrans-iberia.example","industry":"Logistics","employees":1200,"revenue_band":"100M-250M EUR","country":"Spain","funding_stage":"private, profitable","current_hr_tool":"spreadsheets","current_finance_tool":"SAP Business One","tech_stack":["SAP Business One","Microsoft 365","Excel"],"hiring_trend":"flat"},
+    "activity": {"source":"referral","first_seen":"2026-10-02","pages_visited":["index.html","pricing.html","app/close.html","app/expenses.html"],"content_downloaded":"ROI calculator","emails_opened":6,"previous_demos":1,"crm_stage":"opportunity","deal_owner":"Pablo Ferrer","open_opportunity_value_eur":84000},
+    "form": {"what_brings_you":"We need to know the payback and the total cost before the board meeting","team_size_answer":"1,200 people, 14 in finance","timeline":"this month","who_else_decides":"no one, I sign","biggest_pain":"Month end close takes 9 days and nobody trusts the numbers"}
+  },
+  {
+    "contact": {"id":"hrd","first_name":"Javier","last_name":"Soto","email":"jsoto@clinicanorte.example","job_title":"HR Director","seniority":"director","department":"Human Resources","linkedin_headline":"HR Director | Healthcare people operations | Labour law","language":"es","country":"Spain","timezone":"Europe/Madrid"},
+    "company": {"name":"Clinica Norte","domain":"clinicanorte.example","industry":"Healthcare","employees":800,"revenue_band":"50M-100M EUR","country":"Spain","funding_stage":"private group","current_hr_tool":"SAP SuccessFactors","current_finance_tool":"Sage 200","tech_stack":["SAP SuccessFactors","Sage 200","A3 Nom","Microsoft 365"],"hiring_trend":"growing"},
+    "activity": {"source":"g2 comparison","first_seen":"2026-10-20","pages_visited":["index.html","app/people.html","app/timeoff.html","app/security.html"],"content_downloaded":"GDPR and labour law compliance guide","emails_opened":3,"previous_demos":0,"crm_stage":"sql","deal_owner":"Lucia Prat","open_opportunity_value_eur":52000},
+    "form": {"what_brings_you":"Comparing three suites, I need GDPR, audit trail and shift rules for clinical staff","team_size_answer":"800 staff in 4 clinics","timeline":"this quarter","who_else_decides":"the CEO and the CFO sign off with me","biggest_pain":"Has used two other HR suites, audits by hand every quarter"}
+  },
+  {
+    "contact": {"id":"manager","first_name":"Lucia","last_name":"Gomez","email":"lucia.gomez@modavia.example","job_title":"Store Operations Manager","seniority":"manager","department":"Store Operations","linkedin_headline":"Running 40 stores, one shift at a time","language":"es","country":"Spain","timezone":"Europe/Madrid"},
+    "company": {"name":"ModaVia Retail","domain":"modavia.example","industry":"Retail","employees":3000,"revenue_band":"250M-500M EUR","country":"Spain","funding_stage":"private","current_hr_tool":"paper and spreadsheets","current_finance_tool":"none","tech_stack":["WhatsApp","Excel","Google Workspace"],"hiring_trend":"seasonal peaks"},
+    "activity": {"source":"linkedin","first_seen":"2026-11-01","pages_visited":["index.html","app/timeoff.html","app/home.html"],"content_downloaded":null,"emails_opened":1,"previous_demos":0,"crm_stage":"lead","deal_owner":"Lucia Prat","open_opportunity_value_eur":0},
+    "form": {"what_brings_you":"I want something easy that my store leads can use from the phone","team_size_answer":"about 300 in my region","timeline":"just looking","who_else_decides":"HR picks the tool, I just use it","biggest_pain":"Not technical, cares about her team's day to day: shift swaps and holidays by WhatsApp"}
+  },
+  {
+    "contact": {"id":"cto","first_name":"Daniel","last_name":"Park","email":"dpark@finlo.example","job_title":"CTO","seniority":"c-level","department":"Engineering","linkedin_headline":"CTO at Finlo | Payments infrastructure, security, APIs","language":"en","country":"Ireland","timezone":"Europe/Dublin"},
+    "company": {"name":"Finlo","domain":"finlo.example","industry":"Fintech","employees":250,"revenue_band":"10M-50M EUR","country":"Ireland","funding_stage":"Series B","current_hr_tool":"BambooHR","current_finance_tool":"Xero","tech_stack":["AWS","Okta","Snowflake","BambooHR","Xero","Slack"],"hiring_trend":"growing fast"},
+    "activity": {"source":"g2 comparison","first_seen":"2026-10-25","pages_visited":["index.html","app/security.html","app/integrations.html","pricing.html"],"content_downloaded":"Security whitepaper","emails_opened":2,"previous_demos":0,"crm_stage":"sql","deal_owner":"Pablo Ferrer","open_opportunity_value_eur":38000},
+    "form": {"what_brings_you":"Need SSO, data residency in the EU and a real API before we switch","team_size_answer":"250","timeline":"this quarter","who_else_decides":"the CEO and our Head of People","biggest_pain":"Will ask about API, data residency and SSO"}
+  },
+  {
+    "contact": {"id":"ceo","first_name":"Ana","last_name":"Bello","email":"ana@brotes.example","job_title":"CEO and founder","seniority":"c-level","department":"Executive","linkedin_headline":"Founder at Brotes | Growing food with less water","language":"es","country":"Spain","timezone":"Europe/Madrid"},
+    "company": {"name":"Brotes","domain":"brotes.example","industry":"Agritech startup","employees":60,"revenue_band":"1M-10M EUR","country":"Spain","funding_stage":"Seed","current_hr_tool":"spreadsheets","current_finance_tool":"spreadsheets","tech_stack":["Google Workspace","Notion","Holded"],"hiring_trend":"doubling this year"},
+    "activity": {"source":"google ads","first_seen":"2026-11-03","pages_visited":["index.html","app/recruiting.html","app/payroll.html"],"content_downloaded":null,"emails_opened":0,"previous_demos":0,"crm_stage":"lead","deal_owner":"Marcos Vila","open_opportunity_value_eur":0},
+    "form": {"what_brings_you":"We are hiring fast and need to be up and running quickly","team_size_answer":"60 now, 120 next year","timeline":"just looking","who_else_decides":"just me","biggest_pain":"First HR system ever, growing fast, wants to stop doing HR in spreadsheets"}
+  },
+  {
+    "contact": {"id":"analyst","first_name":"Tom","last_name":"Becker","email":"tom.becker@grupoalba.example","job_title":"Finance Analyst","seniority":"individual","department":"Finance","linkedin_headline":"FP&A analyst | Excel, Power BI, cost models","language":"en","country":"Germany","timezone":"Europe/Berlin"},
+    "company": {"name":"Grupo Alba","domain":"grupoalba.example","industry":"Manufacturing","employees":5000,"revenue_band":"1B+ EUR","country":"Spain","funding_stage":"listed","current_hr_tool":"Workday","current_finance_tool":"spreadsheets","tech_stack":["Workday","Power BI","Excel"],"hiring_trend":"flat"},
+    "activity": {"source":"outbound","first_seen":"2026-10-28","pages_visited":["index.html","app/analytics.html","app/planning.html"],"content_downloaded":"Analytics product sheet","emails_opened":4,"previous_demos":0,"crm_stage":"mql","deal_owner":"Marcos Vila","open_opportunity_value_eur":0},
+    "form": {"what_brings_you":"My boss asked me to shortlist vendors, I need reports and dashboards I can show her","team_size_answer":"5,000 across 3 countries","timeline":"just looking","who_else_decides":"my boss, the finance director","biggest_pain":"Sent by his boss to shortlist vendors, needs something to bring back"}
+  },
+  {
+    "contact": {"id":"auditready","first_name":"Ines","last_name":"Duarte","email":"ines.duarte@marlusa.example","job_title":"Financial Controller","seniority":"director","department":"Finance","linkedin_headline":"Controller | IFRS, audit, shared services","language":"en","country":"Portugal","timezone":"Europe/Lisbon"},
+    "company": {"name":"Marlusa Foods","domain":"marlusa.example","industry":"Food processing","employees":1800,"revenue_band":"250M-500M EUR","country":"Portugal","funding_stage":"family owned","current_hr_tool":"Sage HR","current_finance_tool":"Microsoft Dynamics","tech_stack":["Microsoft Dynamics","Sage HR","Power BI"],"hiring_trend":"flat"},
+    "activity": {"source":"event","first_seen":"2026-09-18","pages_visited":["index.html","app/close.html","app/security.html","pricing.html"],"content_downloaded":"Audit trail checklist","emails_opened":8,"previous_demos":2,"crm_stage":"negotiation","deal_owner":"Pablo Ferrer","open_opportunity_value_eur":96000},
+    "form": {"what_brings_you":"Our auditors flagged the expense approvals, we need a clean audit trail","team_size_answer":"1,800","timeline":"this month","who_else_decides":"the CFO and the board","biggest_pain":"Expense approvals live in email and the auditors keep finding gaps"}
+  },
+  {
+    "contact": {"id":"teamlead","first_name":"Kofi","last_name":"Mensah","email":"kofi.mensah@vertexa.example","job_title":"Engineering Team Lead","seniority":"manager","department":"Engineering","linkedin_headline":"Team lead, 12 engineers, remote first","language":"en","country":"Netherlands","timezone":"Europe/Amsterdam"},
+    "company": {"name":"Vertexa Labs","domain":"vertexa.example","industry":"Software","employees":400,"revenue_band":"10M-50M EUR","country":"Netherlands","funding_stage":"Series C","current_hr_tool":"Personio","current_finance_tool":"none","tech_stack":["Personio","Jira","Slack","Google Workspace"],"hiring_trend":"growing"},
+    "activity": {"source":"linkedin","first_seen":"2026-11-02","pages_visited":["index.html","app/performance.html","app/skills.html"],"content_downloaded":null,"emails_opened":1,"previous_demos":0,"crm_stage":"lead","deal_owner":"Marcos Vila","open_opportunity_value_eur":0},
+    "form": {"what_brings_you":"Reviews take forever, I want something simple for 1:1s and goals","team_size_answer":"12","timeline":"just looking","who_else_decides":"People team picks the tool, I use it","biggest_pain":"Performance reviews in docs, nobody finds last quarter's goals"}
+  }
+]

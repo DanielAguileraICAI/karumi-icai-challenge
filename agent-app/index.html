@@ -71,6 +71,16 @@
   th{background:var(--ink);color:var(--lav);font-weight:700}
   td.hookc{background:var(--pulse);font-weight:700}
   td small{color:var(--muted);display:block}
+  .seg{display:flex;border:1px solid var(--ink);border-radius:var(--r);overflow:hidden;margin:8px 0 10px}
+  .seg button{flex:1;font:inherit;font-size:13px;font-weight:700;padding:7px;border:0;background:#fff;cursor:pointer}
+  .seg button.on{background:var(--ink);color:var(--pink)}
+  .know{border:1px solid var(--rule);border-radius:var(--r);padding:12px;margin-top:12px;font-size:13px;background:var(--sand)}
+  .know h4{margin:8px 0 4px;font-size:12px;text-transform:uppercase;letter-spacing:.06em}
+  .know div{display:flex;justify-content:space-between;gap:8px;border-top:1px solid var(--rule);padding:3px 0}
+  .know div span:first-child{color:var(--muted)}
+  .src{font-size:11px;border-radius:var(--r);padding:1px 6px;background:var(--lav);margin-left:6px}
+  .schema{background:var(--sand);padding:40px 0}
+  pre{background:var(--ink);color:var(--pulse);border-radius:var(--r);padding:14px;overflow:auto;max-height:420px;font-size:12px}
   footer{padding:28px 0;color:var(--muted);font-size:13px}
   @media (max-width:1000px){.grid{grid-template-columns:1fr}.hero h1{font-size:44px}.cols{grid-template-columns:1fr}}
 </style>
@@ -96,9 +106,13 @@
     </div>
     <div class="found" id="found">Reading the product…</div>
     <div class="chips" id="modules"></div>
+    <div class="seg" id="srcseg"><button data-src="extract" class="on">Read from the pages</button><button data-src="file">Hand-written list</button></div>
+    <a href="#schema" id="seeschema" style="font-size:13px" hidden>See the extracted schema</a>
 
     <h3>2 · Who is watching</h3>
+    <div class="seg" id="pplseg"><button data-src="synthetic" class="on">Synthetic people</button><button data-src="crm">From the CRM</button></div>
     <div class="people" id="people"></div>
+    <div id="know"></div>
     <div class="fields">
       <div><label>Role</label><select id="role"><option value="finance">Finance</option><option value="hr">HR</option><option value="manager">Manager</option><option value="it">IT</option><option value="exec">Executive</option><option value="employee">Employee</option></select></div>
       <div><label>Power to decide</label><select id="decision"><option value="decider">Decides</option><option value="influencer">Influences</option><option value="user">Will use it</option><option value="researcher">Researches for someone</option></select></div>
@@ -116,6 +130,14 @@
   <div id="out"><div class="empty">Pick a person and press Plan the demo</div></div>
 </div></section>
 
+<section class="schema" id="schema" hidden><div class="wrap">
+  <div class="eyebrow">Feature extract</div>
+  <h2>What we could read from the product, page by page</h2>
+  <div id="schemaTable"></div>
+  <h3>Raw extract of one page</h3>
+  <pre id="schemaRaw"></pre>
+</div></section>
+
 <section class="compare" id="compare" hidden><div class="wrap">
   <div class="eyebrow">Six visitors, six demos</div>
   <h2>Same product, a different first three minutes for each person</h2>
@@ -126,20 +148,68 @@
 
 <script type="module">
 import { planDemo, scoreFeature } from "./engine.js";
+import { toVoicePlan, asDataUrl } from "./voiceplan.js";
 const $ = s => document.querySelector(s);
 let schema = null, profiles = [], current = null;
 const fields = ["role","decision","knowledge","concern","stage","minutes"];
 const fmt = s => `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`;
 const base = () => { const u = $("#url").value.trim(); return u.endsWith("/") ? u : u + "/"; };
 
+let srcMode = "extract", extractRaw = null;
 async function loadProduct(){
   $("#found").textContent = "Reading the product…";
   try {
-    const r = await fetch(base() + "features.json"); schema = await r.json();
+    if (srcMode === "extract") {
+      try {
+        const X = await import("./extract.js");
+        extractRaw = await X.extractSite(new URL(base(), location.href).href, {maxPages: 25});
+        const sc = X.toSchema(extractRaw);
+        if (!sc.features || sc.features.length < 3) throw new Error("too few features");
+        schema = sc; showSchema();
+      } catch (err) { console.warn("extract failed, using features.json", err); srcMode = "file"; markSeg("#srcseg", "file"); }
+    }
+    if (srcMode === "file") { const r = await fetch(base() + "features.json"); schema = await r.json(); $("#schema").hidden = true; $("#seeschema").hidden = true; }
     const mods = [...new Set(schema.features.map(f => f.module))];
     $("#found").innerHTML = `<b>${schema.product}</b> · ${schema.category} · ${schema.features.length} features in ${mods.length} modules`;
     $("#modules").innerHTML = mods.map(m => `<span class="chip">${m}</span>`).join("");
+    if (srcMode === "extract" && extractRaw) $("#found").innerHTML += ` · read from ${extractRaw.pages.length} pages`;
   } catch(e){ $("#found").textContent = "Could not read features.json at that address"; schema = null; }
+}
+function markSeg(sel, v){ document.querySelectorAll(sel + " button").forEach(b => b.classList.toggle("on", b.dataset.src === v)); }
+function showSchema(){
+  $("#schema").hidden = false; $("#seeschema").hidden = false;
+  $("#schemaTable").innerHTML = `<table><tr><th>Feature</th><th>Module</th><th>Themes</th><th>Roles</th><th>Level</th><th>Wow</th><th>Proof</th><th>Evidence</th></tr>${schema.features.map(f => `<tr><td><b>${f.name}</b><small>${f.screen||""}</small></td><td>${f.module||""}</td><td>${(f.themes||[]).join(", ")}</td><td>${(f.roles||[]).join(", ")}</td><td>${f.level??""}</td><td>${f.wow??""}</td><td>${f.proof||""}</td><td><small>${(f.evidence||[]).slice(0,4).join("<br>")}</small></td></tr>`).join("")}</table>`;
+  const one = extractRaw.pages.find(p => /payroll|analytics/.test(p.path||p.url)) || extractRaw.pages[0];
+  $("#schemaRaw").textContent = JSON.stringify(one, null, 2);
+}
+let crm = null, P = null, pplMode = "synthetic";
+async function showPeople(){
+  $("#know").innerHTML = "";
+  if (pplMode === "crm") {
+    try {
+      P = P || await import("./profile.js");
+      crm = crm || await (await fetch("../data/crm.json")).json();
+      $("#people").innerHTML = crm.map((r, i) => `<button class="person" data-i="${i}"><b>${r.contact.first_name} ${r.contact.last_name}</b><small>${r.contact.job_title} · ${r.company.name}</small></button>`).join("");
+      document.querySelectorAll(".person").forEach(b => b.onclick = () => { const r = crm[+b.dataset.i]; const p = P.toProfile(r); pick({...p, id: "crm" + b.dataset.i}); document.querySelectorAll(".person").forEach(x => x.classList.toggle("on", x === b)); showKnow(r, p); render(readProfile()); });
+      return;
+    } catch (err) { console.warn("crm not ready", err); pplMode = "synthetic"; markSeg("#pplseg", "synthetic"); }
+  }
+  $("#people").innerHTML = profiles.map(p => `<button class="person" data-id="${p.id}"><b>${p.name}</b><small>${p.title} · ${p.company}</small></button>`).join("");
+  document.querySelectorAll(".person").forEach(b => b.onclick = () => { pick(profiles.find(p => p.id === b.dataset.id)); render(readProfile()); });
+}
+function showKnow(r, p){
+  const row = (k, v) => v == null || v === "" ? "" : `<div><span>${k}</span><span>${Array.isArray(v) ? v.join(", ") : v}</span></div>`;
+  const src = k => p.sources && p.sources[k] ? `<span class="src" title="${p.sources[k].evidence}">${p.sources[k].from} · ${p.sources[k].confidence}</span>` : "";
+  $("#know").innerHTML = `<div class="know">
+    <h4>What we know before the demo</h4>
+    ${row("Email", r.contact.email)}${row("Seniority", r.contact.seniority)}${row("Department", r.contact.department)}
+    ${row("Company", `${r.company.name} · ${r.company.industry} · ${r.company.employees} people`)}${row("Today uses", [r.company.current_hr_tool, r.company.current_finance_tool].filter(Boolean))}
+    ${row("Came from", r.activity.source)}${row("Pages seen", r.activity.pages_visited)}${row("CRM stage", r.activity.crm_stage)}
+    <h4>What they told us in the form</h4>
+    ${row("Why here", r.form.what_brings_you)}${row("Timeline", r.form.timeline)}${row("Who else decides", r.form.who_else_decides)}${row("Biggest pain", r.form.biggest_pain)}
+    <h4>What the engine takes from it</h4>
+    ${["role","decision","knowledge","concern","stage"].map(k => `<div><span>${k}</span><span><b>${p[k]}</b>${src(k)}</span></div>`).join("")}
+  </div>`;
 }
 function pick(p){
   current = {...p};
@@ -176,7 +246,9 @@ function render(p){
       <div><h3>Left out, and why</h3><ul class="clean">${plan.leftOut.slice(0,7).map(l => `<li>${l.name}<small>${l.why}</small></li>`).join("")}</ul></div>
     </div>
     <div class="next"><div class="eyebrow">Next step to offer</div><p>${plan.nextStep}</p></div>
-    <div class="actions" style="margin-top:16px"><button class="btn" id="live">Start the live demo inside ${schema.product}</button></div>`;
+    <div class="actions" style="margin-top:16px"><button class="btn" id="live">Start the live demo inside ${schema.product}</button><a class="btn ghost" id="vplan" download="plan-${p.id}.json" style="text-decoration:none">Plan for the voice agent (JSON)</a></div>`;
+  const feats = schema.features.map(f => ({...f, score: scoreFeature(f, p).score}));
+  $("#vplan").href = asDataUrl(toVoicePlan(schema, p, plan, feats, new URL(base(), location.href).href));
   $("#live").onclick = () => startLive(p, plan);
 }
 function startLive(p, plan){
@@ -199,8 +271,9 @@ function compareAll(){
 }
 
 profiles = await (await fetch("../data/profiles.json")).json();
-$("#people").innerHTML = profiles.map(p => `<button class="person" data-id="${p.id}"><b>${p.name}</b><small>${p.title} · ${p.company}</small></button>`).join("");
-document.querySelectorAll(".person").forEach(b => b.onclick = () => { pick(profiles.find(p => p.id === b.dataset.id)); render(readProfile()); });
+await showPeople();
+document.querySelectorAll("#pplseg button").forEach(b => b.onclick = async () => { pplMode = b.dataset.src; markSeg("#pplseg", pplMode); await showPeople(); });
+document.querySelectorAll("#srcseg button").forEach(b => b.onclick = async () => { srcMode = b.dataset.src; markSeg("#srcseg", srcMode); await loadProduct(); render(readProfile()); });
 fields.forEach(k => $("#"+k).onchange = () => render(readProfile()));
 $("#load").onclick = loadProduct;
 $("#go").onclick = () => render(readProfile());
